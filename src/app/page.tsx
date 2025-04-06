@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import ActiveInferenceTutorialPage from './tutorial/active-inference/page'
 
 export default function Home() {

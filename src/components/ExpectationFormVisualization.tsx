@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { InlineMath, BlockMath } from 'react-katex';
+import InlineMath from '@matejmazur/react-katex';
+import BlockMath from '@matejmazur/react-katex';
 import { ArrowRight } from 'lucide-react';
 
 // Helper for highlighting parts of the formula - uses KaTeX color commands

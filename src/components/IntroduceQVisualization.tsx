@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { InlineMath } from 'react-katex';
+import InlineMath from '@matejmazur/react-katex';
 
 // Example data for visualization
 const numTrueStates = 50;

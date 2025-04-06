@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Stage, Layer, Line, Circle, Text } from 'react-konva';
-import { InlineMath } from 'react-katex';
+import InlineMath from '@matejmazur/react-katex';
 
 interface JensensInequalityVisualizationProps {
   width?: number;

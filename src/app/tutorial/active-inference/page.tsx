@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import 'katex/dist/katex.min.css';
-import { InlineMath, BlockMath } from 'react-katex';
+import InlineMath from '@matejmazur/react-katex';
+import BlockMath from '@matejmazur/react-katex';
 import { ArrowRight } from 'lucide-react';
 
 // Create a safer Math component that won't conflict with native Math
