@@ -1,14 +1,12 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import type { KonvaComponents } from './KonvaComponents';
 
-const KonvaComponents = dynamic<KonvaComponents>(() => import('./KonvaComponents'), {
-  ssr: false,
-});
+// Correct approach: import each component separately and don't specify generic type
+const Stage = dynamic(() => import('react-konva').then(mod => mod.Stage), { ssr: false });
+const Layer = dynamic(() => import('react-konva').then(mod => mod.Layer), { ssr: false });
+const Line = dynamic(() => import('react-konva').then(mod => mod.Line), { ssr: false });
+const Circle = dynamic(() => import('react-konva').then(mod => mod.Circle), { ssr: false });
+const Text = dynamic(() => import('react-konva').then(mod => mod.Text), { ssr: false });
 
-export const Stage = KonvaComponents.Stage;
-export const Layer = KonvaComponents.Layer;
-export const Line = KonvaComponents.Line;
-export const Circle = KonvaComponents.Circle;
-export const Text = KonvaComponents.Text; 
+export { Stage, Layer, Line, Circle, Text }; 
