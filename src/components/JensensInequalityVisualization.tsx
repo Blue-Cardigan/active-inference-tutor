@@ -11,8 +11,6 @@ interface JensensInequalityVisualizationProps {
 
 // The convex function f(x) = -log(x)
 const func = (x: number) => -Math.log(x);
-// Inverse function (for dragging y to find x) - exp(-y)
-const inverseFunc = (y: number) => Math.exp(-y);
 
 export default function JensensInequalityVisualization({
   width = 500,

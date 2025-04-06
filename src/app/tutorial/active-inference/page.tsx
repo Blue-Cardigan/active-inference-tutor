@@ -76,6 +76,21 @@ const IntroduceQVisualization = dynamic(() => import('@/components/IntroduceQVis
 const ExpectationFormVisualization = dynamic(() => import('@/components/ExpectationFormVisualization'), { ssr: false });
 const JensensInequalityVisualization = dynamic(() => import('@/components/JensensInequalityVisualization'), { ssr: false });
 
+// Import new decomposition visualizations
+const ComplexityAccuracyVisualization = dynamic(() => import('@/components/ComplexityAccuracyVisualization'), { ssr: false });
+const ErrorSurpriseVisualization = dynamic(() => import('@/components/ErrorSurpriseVisualization'), { ssr: false });
+
+// Import the new Hunger Example visualization
+const HungerExampleVisualization = dynamic(() => import('@/components/HungerExampleVisualization'), { ssr: false, loading: () => <div className="h-[600px] flex items-center justify-center">Loading interactive example...</div> });
+
+// Import the Precision Explanation visualization
+const PrecisionExplanationViz = dynamic(() => import('@/components/PrecisionExplanationViz'), { ssr: false, loading: () => <div className="h-[400px] flex items-center justify-center">Loading precision visualization...</div> });
+
+// Import the new visualizations for time, action, and policies
+const DynamicWorldViz = dynamic(() => import('@/components/DynamicWorldViz'), { ssr: false, loading: () => <div className="h-[400px] flex items-center justify-center">Loading time visualization...</div> });
+const ActionInfluenceViz = dynamic(() => import('@/components/ActionInfluenceViz'), { ssr: false, loading: () => <div className="h-[400px] flex items-center justify-center">Loading action visualization...</div> });
+const PolicyComparisonViz = dynamic(() => import('@/components/PolicyComparisonViz'), { ssr: false, loading: () => <div className="h-[500px] flex items-center justify-center">Loading policy visualization...</div> });
+
 // Local component: ConvexityExplanation
 const ConvexityExplanation = () => (
     <div className="my-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center prose-sm">
@@ -211,7 +226,7 @@ export default function ActiveInferenceTutorialPage() {
       {/* Table of Contents */}
       <div className="bg-gray-50 p-6 mb-10 rounded-lg not-prose text-sm">
         <h2 className="text-2xl font-semibold mb-4">Contents</h2>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 list-none pl-0">
+        <ul className="grid grid-cols-1 md:grid-cols-3 gap-2 list-none pl-0">
           <li><a href="#motivation" className="text-blue-700 hover:text-blue-900 hover:underline">Motivation: Staying Alive</a></li>
           <li><a href="#generative-process" className="text-blue-700 hover:text-blue-900 hover:underline">Generative Process vs. Model</a></li>
           <li><a href="#bayesian-intro" className="text-blue-700 hover:text-blue-900 hover:underline">Bayesian Inference Basics</a></li>
@@ -518,33 +533,36 @@ export default function ActiveInferenceTutorialPage() {
 
        <h2 id="free-energy-decomposition" className="text-3xl font-bold mb-6">Decomposing Free Energy</h2>
        <p>
-        Free Energy can be rearranged into two insightful forms using standard probability rules (<MathFormula inline formula="p(o,s) = p(s|o)p(o) = p(o|s)p(s)"/>) and properties of logarithms.
+        Free Energy can be rearranged into two insightful forms using standard probability rules (<MathFormula inline formula="\color{green}p(o,s) = \color{red}p(s|o)\color{blue}p(o) = \color{purple}p(o|s)\color{orange}p(s)"/>) and properties of logarithms.
        </p>
        <p><strong>Decomposition 1: Complexity and Inaccuracy</strong></p>
        <MathFormula inline={false} formula="F = E_{q(s)}[\log q(s) - \log p(o,s)]" />
        <MathFormula inline={false} formula="F = E_{q(s)}[\log q(s) - \log (p(o|s)p(s))]" />
        <MathFormula inline={false} formula="F = E_{q(s)}[\log q(s) - \log p(s) - \log p(o|s)]" />
-       <MathFormula inline={false} formula="F = \underbrace{E_{q(s)}[\log \frac{q(s)}{p(s)}]}_{\text{Complexity}} \underbrace{- E_{q(s)}[\log p(o|s)]}_{\text{Inaccuracy}}" />
+       <MathFormula inline={false} formula="F = \color{purple}\underbrace{E_{q(s)}[\log \frac{q(s)}{p(s)}]}_{\text{Complexity}} \color{orange}\underbrace{- E_{q(s)}[\log p(o|s)]}_{\text{Inaccuracy}}" />
        <p>
         Here, Free Energy balances:
        </p>
        <ul className="list-disc pl-6 space-y-2 my-4">
-          <li><strong>Complexity:</strong> The KL divergence <MathFormula inline formula="KL[q(s) || p(s)]"/> measures how much the agent's approximate posterior belief <InlineMath math="q(s)"/> diverges from its prior belief <InlineMath math="p(s)"/>. Minimizing this encourages simpler explanations that don't stray too far from prior assumptions.</li>
-          <li><strong>Inaccuracy:</strong> The expected negative log-likelihood of the observation given the state, under the agent's belief <InlineMath math="q(s)"/>. Minimizing this term (equivalent to maximizing Accuracy, <InlineMath math="E_{q(s)}[\log p(o|s)]"/>) means finding beliefs <InlineMath math="q(s)"/> that make the observation <InlineMath math="o"/> likely.</li>
+          <li><strong>Complexity:</strong> The KL divergence <MathFormula inline formula="\color{purple}KL[q(s) || p(s)]"/> measures how much the agent's approximate posterior belief <InlineMath math="\color{blue}q(s)"/> diverges from its prior belief <InlineMath math="\color{red}p(s)"/>. Minimizing this encourages simpler explanations that don't stray too far from prior assumptions.</li>
+          <li><strong>Inaccuracy:</strong> The expected negative log-likelihood of the observation given the state, under the agent's belief <InlineMath math="q(s)"/>. Minimizing this term (equivalent to maximizing Accuracy, <InlineMath math="\color{orange}E_{q(s)}[\log p(o|s)]"/>) means finding beliefs <InlineMath math="q(s)"/> that make the observation <InlineMath math="o"/> likely.</li>
        </ul>
         <p>Minimizing <InlineMath math="F"/> involves a trade-off: find beliefs <InlineMath math="q(s)"/> that accurately explain the data (<InlineMath math="o"/>) without becoming overly complex (too different from the prior <InlineMath math="p(s)"/>).</p>
+
+       {/* Add the Complexity/Accuracy visualization */}
+       <ComplexityAccuracyVisualization />
 
        <p><strong>Decomposition 2: Approximation Error and Surprise</strong></p>
         <MathFormula inline={false} formula="F = E_{q(s)}[\log q(s) - \log p(o,s)]" />
         <MathFormula inline={false} formula="F = E_{q(s)}[\log q(s) - \log (p(s|o)p(o))]" />
         <MathFormula inline={false} formula="F = E_{q(s)}[\log q(s) - \log p(s|o) - \log p(o)]" />
-        <MathFormula inline={false} formula="F = \underbrace{E_{q(s)}[\log \frac{q(s)}{p(s|o)}]}_{\text{Approximation Error (KL)}} + \underbrace{(-\log p(o))}_{\text{Surprise}}" />
+        <MathFormula inline={false} formula="F = \color{purple}\underbrace{E_{q(s)}[\log \frac{q(s)}{p(s|o)}]}_{\text{Approximation Error (KL)}} + \color{orange}\underbrace{(-\log p(o))}_{\text{Surprise}}" />
        <p>
         This shows:
        </p>
        <ul className="list-disc pl-6 space-y-2 my-4">
-          <li><strong>Approximation Error:</strong> The KL divergence <MathFormula inline formula="KL[q(s) || p(s|o)]"/> measures how different the agent's approximate belief <InlineMath math="q(s)"/> is from the true posterior belief <InlineMath math="p(s|o)"/> (the ideal Bayesian belief given the observation).</li>
-          <li><strong>Surprise:</strong> The actual surprise <MathFormula inline formula="-\log p(o)"/>.</li>
+          <li><strong>Approximation Error:</strong> The KL divergence <MathFormula inline formula="\color{purple}KL[q(s) || p(s|o)]"/> measures how different the agent's approximate belief <InlineMath math="\color{blue}q(s)"/> is from the true posterior belief <InlineMath math="\color{red}p(s|o)"/> (the ideal Bayesian belief given the observation).</li>
+          <li><strong>Surprise:</strong> The actual surprise <MathFormula inline formula="\color{orange}-\log p(o)"/>.</li>
        </ul>
         <p>
             Since KL divergence is always non-negative (<InlineMath math="KL \ge 0"/>), this form clearly shows that <MathFormula inline formula="F \ge -\log p(o)"/>, confirming <InlineMath math="F"/> is an upper bound on surprise. Minimizing <InlineMath math="F"/> with respect to <InlineMath math="q(s)"/> means making the agent's belief <InlineMath math="q(s)"/> as close as possible to the true posterior <InlineMath math="p(s|o)"/>, driving the KL term towards zero. When <InlineMath math="q(s) = p(s|o)"/>, then <InlineMath math="F = -\log p(o)"/>.
@@ -553,13 +571,191 @@ export default function ActiveInferenceTutorialPage() {
             Furthermore, if the agent can also adjust its model parameters (affecting <InlineMath math="p(o)"/>), minimizing <InlineMath math="F"/> simultaneously improves the model (reduces surprise) and the belief accuracy (reduces KL divergence).
         </p>
 
+        {/* Add the Error/Surprise visualization */}
+        <ErrorSurpriseVisualization />
+
       <hr className="my-10 border-gray-300" />
+
+      {/* NEW SECTION: Dynamic World, Action, Policies, EFE */}
+      <h2 id="dynamic-world" className="text-3xl font-bold mb-6">A Dynamic World: Introducing Time</h2>
+      <p>
+        So far, we dealt with a static situation, with one hidden state and one set of observations, but the real world is dynamic. We perceive and act over time. This means we have hidden states <InlineMath math="s_t"/> and observations <InlineMath math="o_t"/> at each point in time <InlineMath math="t"/>. Since things tend to depend on what has just happened, we assume that the state <InlineMath math="s_t"/> depends on the state at the previous time point, <InlineMath math="s_{t-1}"/>. For example, the probability of seeing a rainbow depends directly on whether it rained before.
+      </p>
+      {/* Add DynamicWorldViz */}
+      <DynamicWorldViz />
+      <p>
+        The agent's task is still to learn a generative model <InlineMath math="p(o,s)"/> that captures these temporal dependencies (e.g., <InlineMath math="p(s_t|s_{t-1})"/> and <InlineMath math="p(o_t|s_t)"/>) and infer the current state <InlineMath math="s_t"/> using an approximate posterior <InlineMath math="q(s_t)"/> based on observations <InlineMath math="o_t"/>. As before, minimizing Free Energy drives the updates to <InlineMath math="q(s_t)"/> and the model parameters.
+      </p>
+
+      <hr className="my-10 border-gray-300" />
+
+      <h2 id="active-inference" className="text-3xl font-bold mb-6">Active Inference: Adding Action</h2>
+      <p>
+        Passive observation isn't enough; agents act on the world. Active Inference incorporates action <InlineMath math="u_t"/>. Now, the state at time <InlineMath math="t"/> depends not only on the previous state <InlineMath math="s_{t-1}"/> but also on the action <InlineMath math="u_{t-1}"/> taken at the previous step. The agent's model includes state transitions conditioned on actions: <InlineMath math="p(s_t | s_{t-1}, u_{t-1})"/>.
+      </p>
+      {/* Add ActionInfluenceViz */}
+      <ActionInfluenceViz />
+      <p>
+        A different action can lead to a different future. Now the agent must choose actions that help minimize Free Energy over time. But how far into the future?
+      </p>
+
+      <hr className="my-10 border-gray-300" />
+
+      <h2 id="planning" className="text-3xl font-bold mb-6">Planning as Policy Selection</h2>
+      <p>
+        Agents don't just react; they plan. Active Inference frames planning as selecting a <strong>policy</strong> (<InlineMath math="\pi"/>), which is a sequence of future actions <InlineMath math="\pi = (u_t, u_{t+1}, ..., u_T)"/> over some time horizon <InlineMath math="T"/>.
+      </p>
+      {/* Add PolicyComparisonViz */}
+      <PolicyComparisonViz />
+      <p>
+        There can be many possible policies. Active Inference considers all plausible policies in parallel. For each potential policy <InlineMath math="\pi"/>, the agent predicts the likely sequence of future states <InlineMath math="q(s_{t+1:\tau}|\pi)"/> and observations <InlineMath math="q(o_{t+1:\tau}|\pi)"/> that would result from executing that policy.
+      </p>
+      <p>
+        The goal remains Free Energy minimization. The agent evaluates each policy based on the Free Energy expected in the future if that policy were pursued. Policies that are expected to lead to lower future Free Energy are preferred.
+      </p>
+
+      <hr className="my-10 border-gray-300" />
+
+      <h2 id="efe" className="text-3xl font-bold mb-6">Expected Free Energy (EFE)</h2>
+      <p>
+        Calculating the Free Energy for future time steps requires a slight modification because we haven't observed the future outcomes <InlineMath math="o_{>t}"/> yet. We need to calculate the <strong>Expected Free Energy</strong> (<InlineMath math="G(\,\cdot\,)"/>) under a given policy <InlineMath math="\pi"/>, averaged over the agent's predictions about future states and observations under that policy:
+      </p>
+       <MathFormula inline={false} formula="G(\pi) = E_{q(s_{>t}, o_{>t}|\pi)}[\log q(s_{>t}|\pi) - \log p(o_{>t}, s_{>t}|\pi)]" />
+      <p>
+          (Note: <InlineMath math="s_{>t}"/> and <InlineMath math="o_{>t}"/> denote future states and observations from time <InlineMath math="t+1"/> to <InlineMath math="\tau"/>, the planning horizon.)
+      </p>
+      <p>
+        How can we decompose this EFE? Recall the two decompositions of Free Energy we saw earlier. The first decomposition (Complexity + Inaccuracy) is problematic for the future because the Inaccuracy term (<InlineMath math="-E_q[\log p(o|s)]"/>) requires knowing the future observation <InlineMath math="o"/>, which we don't.
+      </p>
+       {/* Maybe add a small visual here reminding of the two decompositions? */}
+       <div className="my-4 p-3 bg-gray-100 border rounded-lg text-sm">
+         <p className="font-medium text-center">Recall: Free Energy Decompositions</p>
+         <ul className="list-none pl-0 text-center">
+           <li>1: <InlineMath math="F = \text{Complexity} + \text{Inaccuracy}" /> (Requires <InlineMath math="o"/>)</li>
+           <li>2: <InlineMath math="F = \text{Approximation Error} + \text{Surprise}" /></li>
+         </ul>
+       </div>
+       <p>
+        Therefore, we use the second decomposition (Approximation Error + Surprise) as a starting point, but averaged over predicted future outcomes <InlineMath math="o_{>t}"/> under policy <InlineMath math="\pi"/>:
+       </p>
+       <MathFormula inline={false} formula="G(\pi) = E_{q(o_{>t}|\pi)} \left[ E_{q(s_{>t}|o_{>t},\pi)} [\log q(s_{>t}|o_{>t},\pi) - \log p(o_{>t}, s_{>t}|\pi)] \right]" />
+      <p>
+        Let's expand the joint probability <InlineMath math="p(o_{>t}, s_{>t}|\pi)"/> inside the logarithm using <InlineMath math="p(o,s) = p(s|o)p(o)"/>:
+      </p>
+       <MathFormula inline={false} formula="G(\pi) = E_{q(o,s|\pi)} [\log q(s|o,\pi) - \log(p(s|o,\pi)p(o|\pi))]" />
+        <p>
+           (Simplifying notation: <InlineMath math="s=s_{>t}"/>, <InlineMath math="o=o_{>t}"/>, and hiding the expectation <InlineMath math="E_{q(o,s|\pi)}"/> for clarity in the next steps)
+        </p>
+        <MathFormula inline={false} formula="\log q(s|o,\pi) - \log p(s|o,\pi) - \log p(o|\pi)" />
+        <MathFormula inline={false} formula="\underbrace{KL[q(s|o,\pi) || p(s|o,\pi)]}_{\approx \text{0 if } q \text{ is good}} \underbrace{- E_{q(o|\pi)}[\log p(o|\pi)]}_{\text{Expected Preferences}}" />
+       <p>
+         Here, <InlineMath math="p(o|\pi)"/> represents the agent's prior preferences over outcomes — how much it desires certain future observations. This term encourages policies that lead to preferred outcomes.
+       </p>
+       <p>
+        However, the true posterior <InlineMath math="p(s|o,\pi)"/> is still difficult to compute, especially for the future. We can apply Bayes' rule within the KL divergence term to relate it back to the likelihood <InlineMath math="p(o|s)"/> (which the agent *does* model) and the predicted states <InlineMath math="q(s|\pi)"/>:
+       </p>
+       {/* Using the derivation provided by the user, approx q(s|o,pi) with formula */} 
+       <MathFormula inline={false} formula="\log \frac{q(s|o,\pi)}{p(s|o,\pi)} = \log \frac{q(s|\pi) p(o|s)}{q(o|\pi)} \frac{p(o|\pi)}{p(s|\pi) p(o|s)}" />
+       <p className="text-sm italic">
+         (Note: This step involves some approximations where the agent's predictive distributions <InlineMath math="q"/> replace the true distributions <InlineMath math="p"/>, reflecting that the agent operates based on its own model. For example, the true posterior <InlineMath math="p(s|o,\pi)"/> is approximated by <InlineMath math="\frac{p(o|s)p(s|\pi)}{p(o|\pi)}"/>, and we then work with <InlineMath math="q(s|o,\pi) \approx \frac{p(o|s)q(s|\pi)}{q(o|\pi)}"/> within the expectation.)
+       </p>
+
+      <hr className="my-10 border-gray-300" />
+
+      <h2 id="efe-decomposition" className="text-3xl font-bold mb-6">Decomposing Expected Free Energy</h2>
+      <p>
+        Substituting the Bayesian expansion back into the EFE expression and rearranging leads to a common decomposition:
+      </p>
+       {/* Show the Risk + Ambiguity decomposition */} 
+       <MathFormula inline={false} formula="G(\pi) = E_{q(s,o|\pi)} [\log q(s|\pi) - \log q(s|o,\pi) - \log q(o|\pi)]" />
+       <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [\underbrace{E_{q(s|o,\pi)}[\log q(s|\pi) - \log q(s|o,\pi)]}_{\text{Information Gain}}] - \underbrace{E_{q(o|\pi)}[\log q(o|\pi)]}_{\text{-Entropy}}" />
+       <p>Let's rewrite using <InlineMath math="q(s|o,\pi) = \frac{p(o|s)q(s|\pi)}{q(o|\pi)}"/>:</p>
+       <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [ E_{q(s|o,\pi)}[\log q(s|\pi) - (\log p(o|s) + \log q(s|\pi) - \log q(o|\pi))] ] - E_{q(o|\pi)}[\log q(o|\pi)]" />
+       <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [ E_{q(s|o,\pi)}[-\log p(o|s) + \log q(o|\pi)] ] - E_{q(o|\pi)}[\log q(o|\pi)]" />
+       <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [ E_{q(s|o,\pi)}[-\log p(o|s)] ] + E_{q(o|\pi)}[\log q(o|\pi)] - E_{q(o|\pi)}[\log q(o|\pi)]" />
+       <MathFormula inline={false} formula="G(\pi) = \underbrace{E_{q(s|\pi)}[H[p(o|s)]]}_{\text{Ambiguity}} \underbrace{- E_{q(o|\pi)}[\log p(o|\pi)]}_{\text{Risk (Expected Preference Violation)}}" />
+       <p>
+         (Note: The Risk term is often expressed as <InlineMath math="KL[q(o|\pi) || p(o)]"/>, where <InlineMath math="p(o)"/> are the preferences. This assumes preferences <InlineMath math="p(o)"/> are used instead of <InlineMath math="p(o|\pi)"/> in the derivation step involving <InlineMath math="\log p(o|\pi)"/>).
+       </p>
+       <MathFormula inline={false} formula="G(\pi) \approx \underbrace{KL[q(o|\pi) || p(o)]}_{\text{Risk}} + \underbrace{E_{q(s|\pi)}[H[p(o|s)]]}_{\text{Ambiguity}}" />
+       <p>
+         This decomposition provides intuition about policy selection:
+       </p>
+       <ul className="list-disc pl-6 space-y-2 my-4">
+         <li><strong>Risk (or Cost):</strong> The KL divergence between the predicted outcomes under the policy (<InlineMath math="q(o|\pi)"/>) and the agent's prior preferences (<InlineMath math="p(o)"/>). Minimizing this favors policies expected to lead to desirable outcomes. This is also called Instrumental Value.</li>
+         <li><strong>Ambiguity:</strong> The expected uncertainty about outcomes, given the states predicted under the policy. It reflects the agent's uncertainty in its likelihood model (<InlineMath math="p(o|s)"/>). Minimizing this favors policies expected to lead to states where the outcome is predictable.</li>
+       </ul>
+
+        <p><strong>Alternative Decomposition: Epistemic and Instrumental Value</strong></p>
+        <p>
+          Another insightful way to decompose EFE relates back to the idea of information gain:
+        </p>
+         <MathFormula inline={false} formula="G(\pi) = E_{q(s,o|\pi)} [\log q(s|\pi) - \log p(o,s)]" />
+         <MathFormula inline={false} formula="G(\pi) = E_{q(s,o|\pi)} [\log q(s|\pi) - (\log p(o|s) + \log p(s))]" />
+         <MathFormula inline={false} formula="G(\pi) = \underbrace{E_{q(s,o|\pi)} [\log q(s|\pi) - \log p(s)]}_{\approx \text{Complexity}} \underbrace{- E_{q(s,o|\pi)}[\log p(o|s)]}_{\text{Expected Log Likelihood}}" />
+        <p>
+          Rearranging differently, focusing on the difference between expected future states and states conditioned on observations:
+        </p>
+        <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)}[KL[q(s|\pi) || q(s|o,\pi)]] - E_{q(o|\pi)}[\log p(o)]"/>
+        <MathFormula inline={false} formula="G(\pi) = \underbrace{I_q[s; o | \pi]}_{\text{Epistemic Value (Mutual Info)}} \underbrace{- E_{q(o|\pi)}[\log p(o)]}_{\text{Instrumental Value (Preferences)}}" />
+        <p>
+           (Note: The sign is often flipped, discussing maximizing negative EFE. Here G is minimized.)
+        </p>
+       <ul className="list-disc pl-6 space-y-2 my-4">
+          <li><strong>Instrumental Value:</strong> The degree to which expected outcomes align with prior preferences (<InlineMath math="p(o)"/>). Same as maximizing expected log preferences (or minimizing Risk).</li>
+         <li>
+            <span className="bg-yellow-100 px-1 rounded"><strong>Epistemic Value:</strong></span> The expected information gain about hidden states <InlineMath math="s"/> from observing future outcomes <InlineMath math="o"/> under policy <InlineMath math="\pi"/>. It's the expected reduction in uncertainty about states after seeing outcomes, quantified by the Mutual Information <InlineMath math="I_q[s; o | \pi]"/>.
+         </li>
+       </ul>
+       <p>
+         Minimizing EFE thus balances achieving preferred outcomes (Instrumental Value) with choosing actions that lead to informative observations that reduce uncertainty about the world (Epistemic Value).
+       </p>
+
+       <div className="my-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+         <h4 className="font-semibold text-lg mb-2 text-center">Digging into Epistemic Value</h4>
+         <p className="text-sm mb-2">
+           Epistemic value, or expected information gain, motivates exploration. It quantifies how much a policy is expected to reduce uncertainty about the hidden states <InlineMath math="s"/> by observing the resulting outcomes <InlineMath math="o"/>. It is the mutual information between predicted states and predicted observations under the policy:
+         </p>
+         <MathFormula inline={false} formula="I_q[s; o | \pi] = E_{q(o|\pi)} [KL[q(s|o,\pi) || q(s|\pi)]]"/>
+         <p className="text-sm mt-2 mb-2">
+           It can also be expressed using entropies (<InlineMath math="H[X] = -E[\log p(X)]"/>):
+         </p>
+          <MathFormula inline={false} formula="I_q[s; o | \pi] = H[q(s|\pi)] - E_{q(o|\pi)}[H[q(s|o,\pi)]]"/>
+         <p className="text-sm mt-2">
+           This shows it's the difference between the uncertainty about states *before* seeing the outcome (<InlineMath math="H[q(s|\pi)]"/>) and the expected uncertainty *after* seeing the outcome (<InlineMath math="E_{q(o|\pi)}[H[q(s|o,\pi)]]"/>). Policies that lead to large reductions in uncertainty have high epistemic value.
+         </p>
+         <p className="text-sm mt-2">
+            Alternatively, using the KL divergence formulation:
+         </p>
+          <MathFormula inline={false} formula="I_q[s; o | \pi] = KL[q(s,o|\pi) || q(s|\pi)q(o|\pi)]"/>
+         <p className="text-sm mt-2">
+           This measures how much the joint distribution under the policy differs from the product of the marginals (what you'd expect if states and observations were independent). High epistemic value means states and observations are strongly coupled under that policy.
+         </p>
+         <p className="text-xs mt-3 italic">
+            Practically, epistemic value is high when the agent is uncertain about the state (<InlineMath math="H[q(s|\pi)]"/> is high) but expects the outcomes under a policy to resolve that uncertainty (<InlineMath math="H[q(s|o,\pi)]"/> is low). If the agent is already certain, or if observations don't distinguish between states, epistemic value is low.
+         </p>
+       </div>
+
+      <hr className="my-10 border-gray-300" />
+      {/* END NEW SECTION */}
 
       <h2 id="minimal-example" className="text-3xl font-bold mb-6">Minimalistic Example: Hunger Games</h2>
       <p>
         Let's illustrate policy evaluation and selection with the simple hunger scenario described earlier.
       </p>
-       <MinimalisticExampleViz />
+       
+       {/* Replace the static visualization with the interactive one */}
+       <HungerExampleVisualization />
+       
+       {/* Add the precision explanation visualization */}
+       <div className="my-6">
+         <h3 className="text-xl font-semibold mb-2">The Role of Precision in Policy Selection</h3>
+         <p className="mb-4">
+           In our example above, the precision parameter (γ) doesn't change the outcome because one policy is clearly optimal while the other has infinitely bad Expected Free Energy. However, precision plays a crucial role in more balanced scenarios. The visualization below explains why:
+         </p>
+         <PrecisionExplanationViz />
+       </div>
+       
        <p>
            <strong>Planning Horizon:</strong> One step ahead (<InlineMath math="T=1"/>).
        </p>
