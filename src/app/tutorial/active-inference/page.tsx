@@ -251,11 +251,11 @@ export default function ActiveInferenceTutorialPage() {
       <hr className="my-10 border-gray-300" />
 
       <h2 id="motivation" className="text-3xl font-bold mb-6">Motivation: Staying Alive</h2>
-      <p>
+      <p className="mb-4">
         The fundamental drive, from this perspective, is survival. Biological agents strive to maintain themselves within viable physiological bounds (homeostasis). States outside these bounds (e.g., extreme temperature, low oxygen) are 'surprising' in a statistical sense – they are states the organism is not adapted to and rarely encounters while viable.
       </p>
       <p>
-        However, an agent doesn't directly perceive its internal physiological state; it only has access to sensory observations (<MathFormula inline formula="o"/>). Therefore, to avoid surprising *internal* states, the agent must minimize the surprise associated with its *sensory* observations. Minimizing sensory surprise turns out to be equivalent to building a better predictive model of the world, because accurate predictions lead to less surprising observations.
+        However, an agent doesn't directly perceive its internal physiological state; it only has access to sensory observations (<MathFormula inline formula="o"/>). Therefore, to avoid surprising <strong>internal</strong> states, the agent must minimize the surprise associated with its <strong>sensory</strong> observations. Minimizing sensory surprise turns out to be equivalent to building a better predictive model of the world, because accurate predictions lead to less surprising observations.
       </p>
       <p className="flex items-center flex-wrap font-medium bg-gray-100 p-3 rounded my-4">
         Chain of reasoning: Remain alive <Arrow/> Maintain homeostasis <Arrow/> Avoid surprising (non-viable) states <Arrow/> Avoid surprising sensory observations <Arrow/> Minimize an approximation to surprise (Free Energy).
@@ -272,7 +272,7 @@ export default function ActiveInferenceTutorialPage() {
       </p>
       <ul className="list-disc pl-6 space-y-2 my-4">
           <li><strong>Generative Process (<MathFormula inline formula="P(s,o)"/> or <MathFormula inline formula="R(s,o)"/>):</strong> This is how the actual environment works. Hidden states (<MathFormula inline formula="s"/>) in the world cause sensory observations (<MathFormula inline formula="o"/>). The agent doesn't have direct access to <MathFormula inline formula="s"/>. Example: It rained last night (<InlineMath math="s"/>, hidden state), causing the grass to be wet (<InlineMath math="o"/>, observation). The uppercase <InlineMath math="P"/> denotes the true, objective probabilities of the world.</li>
-          <li><strong>Generative Model (<MathFormula inline formula="p(s,o)"/>):</strong> This is the agent's internal, subjective model of how it *thinks* the environment works. The agent uses this model to infer the hidden states (<InlineMath math="s"/>) that likely caused its current observations (<InlineMath math="o"/>) via <MathFormula inline formula="p(s|o)"/>, using its prior beliefs (<InlineMath math="p(s)"/>) and its understanding of how states cause observations (the likelihood, <InlineMath math="p(o|s)"/>). The lowercase <InlineMath math="p"/> signifies the agent's potentially inaccurate beliefs.</li>
+          <li><strong>Generative Model (<MathFormula inline formula="p(s,o)"/>):</strong> This is the agent's internal, subjective model of how it <strong>thinks</strong> the environment works. The agent uses this model to infer the hidden states (<InlineMath math="s"/>) that likely caused its current observations (<InlineMath math="o"/>) via <MathFormula inline formula="p(s|o)"/>, using its prior beliefs (<InlineMath math="p(s)"/>) and its understanding of how states cause observations (the likelihood, <InlineMath math="p(o|s)"/>). The lowercase <InlineMath math="p"/> signifies the agent's potentially inaccurate beliefs.</li>
       </ul>
       <div className="my-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-col md:flex-row justify-around items-center gap-4">
         <div className="text-center mb-4 md:mb-0">
@@ -472,7 +472,7 @@ export default function ActiveInferenceTutorialPage() {
 
        <h2 id="free-energy-derivation" className="text-3xl font-bold mb-6">Deriving Free Energy</h2>
        <p>
-        How do we get this bound? We start with the definition of surprise and introduce an arbitrary probability distribution <MathFormula inline formula="q(s)"/> over the hidden states. This <MathFormula inline formula="q(s)"/> represents the agent's current *belief* or *approximation* to the true posterior belief about the hidden state <InlineMath math="s"/>. Multiplying and dividing inside the logarithm by <MathFormula inline formula="q(s)"/> (which doesn't change the value) is a common technique in variational methods:
+        How do we get this bound? We start with the definition of surprise and introduce an arbitrary probability distribution <MathFormula inline formula="q(s)"/> over the hidden states. This <MathFormula inline formula="q(s)"/> represents the agent's current <strong>belief</strong> or <strong>approximation</strong> to the true posterior belief about the hidden state <InlineMath math="s"/>. Multiplying and dividing inside the logarithm by <MathFormula inline formula="q(s)"/> (which doesn't change the value) is a common technique in variational methods:
        </p>
        {/* Visualization: Introduce Q */}
        <IntroduceQVisualization />
@@ -642,7 +642,7 @@ export default function ActiveInferenceTutorialPage() {
 +        This decomposition shows EFE as the sum of the <strong className="bg-purple-100 text-purple-700 px-1 rounded">KL divergence</strong> (approximating zero if beliefs are optimal) and the <strong className="bg-blue-100 text-blue-700 px-1 rounded">Expected Preferences</strong> term. Here, <InlineMath math="p(o|\pi)" /> represents the agent's prior preferences over outcomes, encouraging policies leading to desired future observations.
        </p>
        <p>
-         However, the true posterior <InlineMath math="p(s|o,\pi)"/> is still difficult to compute, especially for the future. We can apply Bayes' rule within the KL divergence term to relate it back to the likelihood <InlineMath math="p(o|s)"/> (which the agent *does* model) and the predicted states <InlineMath math="q(s|\pi)"/>:
+         However, the true posterior <InlineMath math="p(s|o,\pi)"/> is still difficult to compute, especially for the future. We can apply Bayes' rule within the KL divergence term to relate it back to the likelihood <InlineMath math="p(o|s)"/> (which the agent <strong>does</strong> model) and the predicted states <InlineMath math="q(s|\pi)"/>:
        </p>
        {/* Using the derivation provided by the user, approx q(s|o,pi) with formula */}
        <MathFormula inline={false} formula="\log \frac{q(s|o,\pi)}{p(s|o,\pi)} = \log \frac{q(s|\pi) p(o|s)}{q(o|\pi)} \frac{p(o|\pi)}{p(s|\pi) p(o|s)}" />
@@ -729,7 +729,7 @@ export default function ActiveInferenceTutorialPage() {
           {/* Epistemic Value using Entropies */}
            <MathFormula inline={false} formula="\textcolor{#F59E0B}{I_q[s; o | \pi]} = \textcolor{#F59E0B}{H[q(s|\pi)] - E_{q(o|\pi)}[H[q(s|o,\pi)]]}"/>
           <p className="text-sm mt-2">
-            This shows it's the difference between the uncertainty about states *before* seeing the outcome (<InlineMath math="H[q(s|\pi)]"/>) and the expected uncertainty *after* seeing the outcome (<InlineMath math="E_{q(o|\pi)}[H[q(s|o,\pi)]]"/>). Policies that lead to large reductions in uncertainty have high <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">epistemic value</strong>.
+            This shows it's the difference between the uncertainty about states <strong>before</strong> seeing the outcome (<InlineMath math="H[q(s|\pi)]"/>) and the expected uncertainty <strong>after</strong> seeing the outcome (<InlineMath math="E_{q(o|\pi)}[H[q(s|o,\pi)]]"/>). Policies that lead to large reductions in uncertainty have high <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">epistemic value</strong>.
           </p>
           <p className="text-sm mt-2">
              Alternatively, using the KL divergence formulation for Mutual Information:
@@ -825,7 +825,7 @@ export default function ActiveInferenceTutorialPage() {
           </li>
           
          {/* Step 7: Evaluate Specific Action Consequences (from old Action Selection) */}
-         <li><strong><span className="bg-pink-100 text-pink-700 px-1 rounded">Evaluate Immediate Action Consequences</span> (<InlineMath math="q(o_t|u) = A B(u) q(s_{t-1})"/>):</strong> For each possible immediate action <InlineMath math="u"/> available *now* (at <InlineMath math="t=0"/>), calculate the specific outcome distribution (<InlineMath math="o_1"/>) that would result if that action were taken, starting from the <strong className="text-gray-700">*current* belief</strong> <InlineMath math="q(s_0)"/>.
+         <li><strong><span className="bg-pink-100 text-pink-700 px-1 rounded">Evaluate Immediate Action Consequences</span> (<InlineMath math="q(o_t|u) = A B(u) q(s_{t-1})"/>):</strong> For each possible immediate action <InlineMath math="u"/> available <strong>now</strong> (at <InlineMath math="t=0"/>), calculate the specific outcome distribution (<InlineMath math="o_1"/>) that would result if that action were taken, starting from the <strong className="text-gray-700">current belief</strong> <InlineMath math="q(s_0)"/>.
              <ul className="list-none pl-4 mt-1 space-y-1">
                <li>If action <InlineMath math="u_1"/> (Get food) is taken now: <InlineMath math="q(o_1|u_1) = A B(u_1) q(s_0) = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix} \begin{pmatrix} 1 & 1 \\\\ 0 & 0 \end{pmatrix} \begin{pmatrix} 0 \\\\ 1 \end{pmatrix} = \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}"/> (Outcome would be '<strong className="text-green-700">Fed</strong>')</li>
                <li>If action <InlineMath math="u_2"/> (Do nothing) is taken now: <InlineMath math="q(o_1|u_2) = A B(u_2) q(s_0) = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix} \begin{pmatrix} 0 & 0 \\\\ 1 & 1 \end{pmatrix} \begin{pmatrix} 0 \\\\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\\\ 1 \end{pmatrix}"/> (Outcome would be '<strong className="text-red-700">Hungry</strong>')</li>
@@ -833,10 +833,10 @@ export default function ActiveInferenceTutorialPage() {
          </li>
          
          {/* Step 8: Select Action (from old Action Selection) */}
-         <li><strong><span className="bg-lime-100 text-lime-700 px-1 rounded">Select Action</span> (<InlineMath math="\text{argmin}_u KL[q(o_t|u) || q(o_t)]"/>):</strong> Choose the immediate action <InlineMath math="u"/> that minimizes the <strong className="text-gray-700">KL divergence</strong> between the outcome predicted <strong className="text-pink-700">*if that specific action is taken*</strong> (<InlineMath math="q(o_t|u)"/> from Step 7) and the <strong className="text-orange-700">*overall expected outcome*</strong> averaged over policies (<InlineMath math="q(o_t)"/> from Step 6). This means selecting the action that best fulfills the agent's overall expectations.
+         <li><strong><span className="bg-lime-100 text-lime-700 px-1 rounded">Select Action</span> (<InlineMath math="\text{argmin}_u KL[q(o_t|u) || q(o_t)]"/>):</strong> Choose the immediate action <InlineMath math="u"/> that minimizes the <strong>KL divergence</strong> between the outcome predicted <strong>if that specific action is taken</strong> (<InlineMath math="q(o_t|u)"/> from Step 7) and the <strong>overall expected outcome</strong> averaged over policies (<InlineMath math="q(o_t)"/> from Step 6). This means selecting the action that best fulfills the agent's overall expectations.
                <ul className="list-none pl-4 mt-1 space-y-1">
-                   <li>Divergence for <InlineMath math="u_1"/>: <InlineMath math="KL[q(o_1|u_1) || q(o_1)] = KL(\begin{pmatrix} 1 \\\\ 0 \end{pmatrix} || \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}) = 0"/>.</li>
-                   <li>Divergence for <InlineMath math="u_2"/>: <InlineMath math="KL[q(o_1|u_2) || q(o_1)] = KL(\begin{pmatrix} 0 \\\\ 1 \end{pmatrix} || \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}) = \infty"/>.</li>
+                   <li>Divergence for <InlineMath math="u_1"/>: <InlineMath math="KL[q(o_1|u_1) || q(o_1)] = KL(\begin{pmatrix} 1 \\ 0 \end{pmatrix} || \begin{pmatrix} 1 \\ 0 \end{pmatrix}) = 0"/>.</li>
+                   <li>Divergence for <InlineMath math="u_2"/>: <InlineMath math="KL[q(o_1|u_2) || q(o_1)] = KL(\begin{pmatrix} 0 \\ 1 \end{pmatrix} || \begin{pmatrix} 1 \\ 0 \end{pmatrix}) = \infty"/>.</li>
                    <li>The action <InlineMath math="u_1"/> (<strong className="text-green-700">Get food</strong>) <strong className="text-green-600">minimizes the KL divergence</strong> (0).</li>
                </ul>
           </li>
@@ -896,7 +896,7 @@ export default function ActiveInferenceTutorialPage() {
   <hr className="my-10 border-gray-300" />
 
   <h2 id="applications" className="text-3xl font-bold mb-6">Applications</h2>
-   <p>
+   <p className="mb-4">
     Active inference is influential in computational neuroscience and psychiatry. It offers potential explanations for phenomena like perceptual inference (e.g., explaining illusions), motor control (viewed as fulfilling proprioceptive predictions), and decision-making under uncertainty.
   </p>
   <p>

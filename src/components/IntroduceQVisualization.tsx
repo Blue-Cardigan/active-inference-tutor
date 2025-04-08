@@ -65,7 +65,7 @@ export default function IntroduceQVisualization() {
       <div className="text-center">
         <h4 className="text-lg font-semibold mb-2">Variational Approach (Tractable)</h4>
         <p className="text-sm mb-3">
-           Introduce a simpler *belief* distribution <InlineMath math="q(s)" />:
+           Introduce a simpler <strong>belief</strong> distribution <InlineMath math="q(s)" />:
         </p>
          <div className="text-center mb-2 font-mono text-teal-700">
            <InlineMath math="q(s)" /> (e.g., Gaussian, simple discrete)
