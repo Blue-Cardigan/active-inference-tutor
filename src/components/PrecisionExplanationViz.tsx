@@ -3,13 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import InlineMath from '@matejmazur/react-katex';
 
-export default function PrecisionExplanationViz() {
-  // State for precision slider
-  const [precision, setPrecision] = useState(1.0);
+export default function PrecisionExplanationViz({ currentPrecision }: { currentPrecision?: number }) {
+  // Use passed-in precision for initial state, default to 1.0
+  const [localPrecision, setLocalPrecision] = useState(currentPrecision ?? 1.0);
   
+  // Keep effect to sync if prop changes externally (though likely won't in this dropdown)
+  useEffect(() => {
+    if (currentPrecision !== undefined) {
+      setLocalPrecision(currentPrecision);
+    }
+  }, [currentPrecision]);
+
   // Two scenarios - extreme case and balanced case
   const extremeCase = {
-    title: "Current Example (Extreme Values)",
+    title: "Current Example (Actual Values)", // Changed title
     efe1: 0,
     efe2: Infinity,
     description: "In this extreme case, precision doesn't affect the outcome because one policy has infinitely bad EFE."
@@ -22,66 +29,72 @@ export default function PrecisionExplanationViz() {
     description: "In this more realistic case, precision significantly affects how strongly the agent prefers the better policy."
   };
   
-  // Calculate policy probabilities for both cases
+  // Calculate policy probabilities for both cases using the LOCAL precision state
   const calculateProbabilities = (efe1: number, efe2: number, precision: number) => {
-    if (!isFinite(efe1) || !isFinite(efe2)) {
-      return [isFinite(efe1) ? 1 : 0, isFinite(efe2) ? 1 : 0];
-    }
-    
+     // Handle infinite EFE gracefully for softmax
+      if (!isFinite(efe1) || !isFinite(efe2)) {
+        const finiteEfe1 = isFinite(efe1);
+        const finiteEfe2 = isFinite(efe2);
+        if (finiteEfe1 && !finiteEfe2) return [1, 0];
+        if (!finiteEfe1 && finiteEfe2) return [0, 1];
+        // If both infinite or zero, assign equal probability (or handle as needed)
+        return [0.5, 0.5]; 
+      }
+
     const w1 = Math.exp(-precision * efe1);
     const w2 = Math.exp(-precision * efe2);
     const sum = w1 + w2;
     
+     // Avoid division by zero if both weights are extremely small
+      if (sum === 0 || !isFinite(sum)) {
+        // If sum is zero or infinite, likely due to large negative exponents or overflow.
+        // Fallback to comparing EFEs directly or equal probability.
+        if (efe1 < efe2) return [1, 0];
+        if (efe2 < efe1) return [0, 1];
+        return [0.5, 0.5];
+      }
+
     return [w1 / sum, w2 / sum];
   };
   
-  // Compute probabilities
+  // Compute probabilities using localPrecision state
   const extremeProbs = calculateProbabilities(
     extremeCase.efe1, 
     extremeCase.efe2, 
-    precision
+    localPrecision // Use local state
   );
   
   const balancedProbs = calculateProbabilities(
     balancedCase.efe1, 
     balancedCase.efe2, 
-    precision
+    localPrecision // Use local state
   );
   
+  // Define the range for the slider within this component
+  const minSliderPrecision = 0.1;
+  const maxSliderPrecision = 5.0; // Keep a reasonable range for the explanation slider
+
   return (
-    <div className="my-6 p-4 border border-gray-300 rounded-lg bg-white">
-      <h3 className="text-lg font-semibold mb-4 text-center">Understanding Precision (γ)</h3>
+    // Reduced top margin as it's inside another component now
+    <div className="my-2 p-4 border border-gray-300 rounded-lg bg-white"> 
+      <h3 className="text-base font-semibold mb-3 text-center">Understanding Precision (γ)</h3> 
       
-      <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+      <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-100">
+         <p className="mb-4">
+           Precision (<InlineMath math="\gamma"/>) scales the influence of Expected Free Energy (<InlineMath math="G(\pi)"/>) when determining policy probabilities (<InlineMath math="q(\pi) = \sigma(-\gamma G(\pi))"/>). In the simple example above, because <InlineMath math="G(\pi_2) = \infty"/>, the choice is unambiguous regardless of <InlineMath math="\gamma"/>. However, precision is crucial when policies have closer EFE values.
+         </p>
+         <p className="text-sm my-4">
+           Higher precision makes the agent more deterministic, strongly favoring the policy with the lowest EFE. Lower precision leads to more stochastic behavior, where the agent might explore policies with slightly higher EFE. This parameter is often linked to neuromodulators like dopamine, potentially encoding confidence or expected uncertainty.
+         </p>
         <p className="text-sm">
-          Precision (γ) controls how strongly the agent prefers policies with lower Expected Free Energy.
-          Higher precision makes the agent more "decisive" or "confident" in choosing the optimal policy.
+          Precision (γ) controls the sensitivity to differences in Expected Free Energy (EFE). It acts like an inverse temperature in the softmax calculation for policy probabilities: <InlineMath math="q(\pi) \propto e^{-\gamma G(\pi)}"/>.
         </p>
-        <div className="mt-2 text-xs flex items-center">
-          <span className="font-medium mr-2">Formula:</span>
-          <InlineMath math="q(\pi) = \frac{e^{-\gamma G(\pi)}}{\sum_{\pi'} e^{-\gamma G(\pi')}}" />
-        </div>
       </div>
       
-      <div className="mt-4 mb-4">
-        <label className="block text-sm font-medium mb-1">
-          Precision (γ): {precision.toFixed(1)}
-        </label>
-        <input
-          type="range"
-          min="0.1"
-          max="5.2"
-          step="0.1"
-          value={precision}
-          onChange={(e) => setPrecision(parseFloat(e.target.value))}
-          className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Extreme case */}
-        <div className="p-4 border rounded-lg bg-gray-50">
-          <h4 className="text-sm font-semibold mb-2">{extremeCase.title}</h4>
+        <div className="p-3 border rounded-lg bg-gray-50">
+          <h4 className="text-xs font-semibold mb-1">{extremeCase.title}</h4>
           <div className="mb-3 flex flex-col gap-1 text-xs">
             <div className="flex justify-between">
               <span>Policy 1 EFE:</span>
@@ -132,8 +145,8 @@ export default function PrecisionExplanationViz() {
         </div>
         
         {/* Balanced case */}
-        <div className="p-4 border rounded-lg bg-gray-50">
-          <h4 className="text-sm font-semibold mb-2">{balancedCase.title}</h4>
+        <div className="p-3 border rounded-lg bg-gray-50">
+          <h4 className="text-xs font-semibold mb-1">{balancedCase.title}</h4>
           <div className="mb-3 flex flex-col gap-1 text-xs">
             <div className="flex justify-between">
               <span>Policy 1 EFE:</span>
@@ -184,7 +197,7 @@ export default function PrecisionExplanationViz() {
         </div>
       </div>
       
-      <div className="mt-5 p-3 bg-green-50 border border-green-200 rounded-lg text-sm">
+      <div className="mt-3 p-2 bg-green-50 border border-green-100 rounded-lg text-xs">
         <h4 className="font-medium mb-1">Key Takeaways:</h4>
         <ul className="list-disc pl-5 text-xs space-y-1">
           <li>Higher precision (γ) makes the agent more "decisive" in following the best policy</li>

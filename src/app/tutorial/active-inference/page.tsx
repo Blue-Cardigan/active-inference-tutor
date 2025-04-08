@@ -601,27 +601,15 @@ export default function ActiveInferenceTutorialPage() {
 
       <hr className="my-10 border-gray-300" />
 
-      <h2 id="planning" className="text-3xl font-bold mb-6">Planning as Policy Selection</h2>
-      <p>
+      <h2 id="efe" className="text-3xl font-bold mb-6">Expected Free Energy (EFE)</h2>
+      <p className="mb-2">
         Agents don't just react; they plan. Active Inference frames planning as selecting a <strong>policy</strong> (<InlineMath math="\pi"/>), which is a sequence of future actions <InlineMath math="\pi = (u_t, u_{t+1}, ..., u_T)"/> over some time horizon <InlineMath math="T"/>.
       </p>
-      {/* Add PolicyComparisonViz */}
-      <PolicyComparisonViz />
-      <p>
-        There can be many possible policies. Active Inference considers all plausible policies in parallel. For each potential policy <InlineMath math="\pi"/>, the agent predicts the likely sequence of future states <InlineMath math="q(s_{t+1:\tau}|\pi)"/> and observations <InlineMath math="q(o_{t+1:\tau}|\pi)"/> that would result from executing that policy.
-      </p>
-      <p>
-        The goal remains Free Energy minimization. The agent evaluates each policy based on the Free Energy expected in the future if that policy were pursued. Policies that are expected to lead to lower future Free Energy are preferred.
-      </p>
-
-      <hr className="my-10 border-gray-300" />
-
-      <h2 id="efe" className="text-3xl font-bold mb-6">Expected Free Energy (EFE)</h2>
       <p>
         Calculating the Free Energy for future time steps requires a slight modification because we haven't observed the future outcomes <InlineMath math="o_{>t}"/> yet. We need to calculate the <strong>Expected Free Energy</strong> (<InlineMath math="G(\,\cdot\,)"/>) under a given policy <InlineMath math="\pi"/>, averaged over the agent's predictions about future states and observations under that policy:
       </p>
        <MathFormula inline={false} formula="G(\pi) = E_{q(s_{>t}, o_{>t}|\pi)}[\log q(s_{>t}|\pi) - \log p(o_{>t}, s_{>t}|\pi)]" />
-      <p>
+      <p className="text-sm italic mb-4">
           (Note: <InlineMath math="s_{>t}"/> and <InlineMath math="o_{>t}"/> denote future states and observations from time <InlineMath math="t+1"/> to <InlineMath math="\tau"/>, the planning horizon.)
       </p>
       <p>
@@ -647,18 +635,29 @@ export default function ActiveInferenceTutorialPage() {
            (Simplifying notation: <InlineMath math="s=s_{>t}"/>, <InlineMath math="o=o_{>t}"/>, and hiding the expectation <InlineMath math="E_{q(o,s|\pi)}"/> for clarity in the next steps)
         </p>
         <MathFormula inline={false} formula="\log q(s|o,\pi) - \log p(s|o,\pi) - \log p(o|\pi)" />
-        <MathFormula inline={false} formula="\underbrace{KL[q(s|o,\pi) || p(s|o,\pi)]}_{\approx \text{0 if } q \text{ is good}} \underbrace{- E_{q(o|\pi)}[\log p(o|\pi)]}_{\text{Expected Preferences}}" />
+        {/* Add color to the terms */}
+        <MathFormula inline={false} formula="\color{purple}\underbrace{KL[q(s|o,\pi) || p(s|o,\pi)]}_{\approx \text{0 if } q \text{ is good}} \color{blue}\underbrace{- E_{q(o|\pi)}[\log p(o|\pi)]}_{\text{Expected Preferences}}" />
        <p>
-         Here, <InlineMath math="p(o|\pi)"/> represents the agent's prior preferences over outcomes — how much it desires certain future observations. This term encourages policies that lead to preferred outcomes.
+-        Here, <InlineMath math="p(o|\pi)" /> represents the agent's prior preferences over outcomes — how much it desires certain future observations. This term encourages policies that lead to preferred outcomes.
++        This decomposition shows EFE as the sum of the <strong className="bg-purple-100 text-purple-700 px-1 rounded">KL divergence</strong> (approximating zero if beliefs are optimal) and the <strong className="bg-blue-100 text-blue-700 px-1 rounded">Expected Preferences</strong> term. Here, <InlineMath math="p(o|\pi)" /> represents the agent's prior preferences over outcomes, encouraging policies leading to desired future observations.
        </p>
        <p>
-        However, the true posterior <InlineMath math="p(s|o,\pi)"/> is still difficult to compute, especially for the future. We can apply Bayes' rule within the KL divergence term to relate it back to the likelihood <InlineMath math="p(o|s)"/> (which the agent *does* model) and the predicted states <InlineMath math="q(s|\pi)"/>:
+         However, the true posterior <InlineMath math="p(s|o,\pi)"/> is still difficult to compute, especially for the future. We can apply Bayes' rule within the KL divergence term to relate it back to the likelihood <InlineMath math="p(o|s)"/> (which the agent *does* model) and the predicted states <InlineMath math="q(s|\pi)"/>:
        </p>
-       {/* Using the derivation provided by the user, approx q(s|o,pi) with formula */} 
+       {/* Using the derivation provided by the user, approx q(s|o,pi) with formula */}
        <MathFormula inline={false} formula="\log \frac{q(s|o,\pi)}{p(s|o,\pi)} = \log \frac{q(s|\pi) p(o|s)}{q(o|\pi)} \frac{p(o|\pi)}{p(s|\pi) p(o|s)}" />
-       <p className="text-sm italic">
+       <p className="text-sm italic mb-4">
          (Note: This step involves some approximations where the agent's predictive distributions <InlineMath math="q"/> replace the true distributions <InlineMath math="p"/>, reflecting that the agent operates based on its own model. For example, the true posterior <InlineMath math="p(s|o,\pi)"/> is approximated by <InlineMath math="\frac{p(o|s)p(s|\pi)}{p(o|\pi)}"/>, and we then work with <InlineMath math="q(s|o,\pi) \approx \frac{p(o|s)q(s|\pi)}{q(o|\pi)}"/> within the expectation.)
        </p>
+
+      {/* Add PolicyComparisonViz */}
+      <PolicyComparisonViz />
+      <p className="mb-2">
+        There can be many possible policies. Active Inference considers all plausible policies in parallel. For each potential policy <InlineMath math="\pi"/>, the agent predicts the likely sequence of future states <InlineMath math="q(s_{t+1:\tau}|\pi)"/> and observations <InlineMath math="q(o_{t+1:\tau}|\pi)"/> that would result from executing that policy.
+      </p>
+      <p>
+        The goal remains Free Energy minimization. The agent evaluates each policy based on the Free Energy expected in the future if that policy were pursued. Policies that are expected to lead to lower future Free Energy are preferred.
+      </p>
 
       <hr className="my-10 border-gray-300" />
 
@@ -668,22 +667,24 @@ export default function ActiveInferenceTutorialPage() {
       </p>
        {/* Show the Risk + Ambiguity decomposition */} 
        <MathFormula inline={false} formula="G(\pi) = E_{q(s,o|\pi)} [\log q(s|\pi) - \log q(s|o,\pi) - \log q(o|\pi)]" />
-       <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [\underbrace{E_{q(s|o,\pi)}[\log q(s|\pi) - \log q(s|o,\pi)]}_{\text{Information Gain}}] - \underbrace{E_{q(o|\pi)}[\log q(o|\pi)]}_{\text{-Entropy}}" />
+       <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [\underbrace{E_{q(s|o,\pi)}[\log q(s|\pi) - \log q(s|o,\pi)]}_{\textcolor{#F59E0B}{\text{Information Gain}}}] - \underbrace{E_{q(o|\pi)}[\log q(o|\pi)]}_{\text{-Entropy}}" />
        <p>Let's rewrite using <InlineMath math="q(s|o,\pi) = \frac{p(o|s)q(s|\pi)}{q(o|\pi)}"/>:</p>
        <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [ E_{q(s|o,\pi)}[\log q(s|\pi) - (\log p(o|s) + \log q(s|\pi) - \log q(o|\pi))] ] - E_{q(o|\pi)}[\log q(o|\pi)]" />
        <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [ E_{q(s|o,\pi)}[-\log p(o|s) + \log q(o|\pi)] ] - E_{q(o|\pi)}[\log q(o|\pi)]" />
        <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)} [ E_{q(s|o,\pi)}[-\log p(o|s)] ] + E_{q(o|\pi)}[\log q(o|\pi)] - E_{q(o|\pi)}[\log q(o|\pi)]" />
-       <MathFormula inline={false} formula="G(\pi) = \underbrace{E_{q(s|\pi)}[H[p(o|s)]]}_{\text{Ambiguity}} \underbrace{- E_{q(o|\pi)}[\log p(o|\pi)]}_{\text{Risk (Expected Preference Violation)}}" />
-       <p>
-         (Note: The Risk term is often expressed as <InlineMath math="KL[q(o|\pi) || p(o)]"/>, where <InlineMath math="p(o)"/> are the preferences. This assumes preferences <InlineMath math="p(o)"/> are used instead of <InlineMath math="p(o|\pi)"/> in the derivation step involving <InlineMath math="\log p(o|\pi)"/>).
+       {/* Final Risk-Ambiguity form with potential preferences p(o|pi) */}
+       <MathFormula inline={false} formula="G(\pi) = \underbrace{\textcolor{#10B981}{E_{q(s|\pi)}[H[p(o|s)]]}}_{\textcolor{#10B981}{\text{Ambiguity}}} \underbrace{\textcolor{#3B82F6}{- E_{q(o|\pi)}[\log p(o|\pi)]}}_{\textcolor{#3B82F6}{\text{Risk (Preferences } p(o|\pi))}}" />
+       <p className="text-sm italic mb-4">
+         (Note: The Risk term is often expressed using prior preferences <InlineMath math="p(o)"/> instead of preferences conditioned on the policy <InlineMath math="p(o|\pi)"/>. Assuming <InlineMath math="p(o|\pi) \approx p(o)"/> leads to the KL divergence form below.)
        </p>
-       <MathFormula inline={false} formula="G(\pi) \approx \underbrace{KL[q(o|\pi) || p(o)]}_{\text{Risk}} + \underbrace{E_{q(s|\pi)}[H[p(o|s)]]}_{\text{Ambiguity}}" />
+       {/* Final Risk-Ambiguity form with prior preferences p(o) */}
+       <MathFormula inline={false} formula="G(\pi) \approx \underbrace{\textcolor{#3B82F6}{KL[q(o|\pi) || p(o)]}}_{\textcolor{#3B82F6}{\text{Risk}}} + \underbrace{\textcolor{#10B981}{E_{q(s|\pi)}[H[p(o|s)]]}}_{\textcolor{#10B981}{\text{Ambiguity}}}" />
        <p>
          This decomposition provides intuition about policy selection:
        </p>
        <ul className="list-disc pl-6 space-y-2 my-4">
-         <li><strong>Risk (or Cost):</strong> The KL divergence between the predicted outcomes under the policy (<InlineMath math="q(o|\pi)"/>) and the agent's prior preferences (<InlineMath math="p(o)"/>). Minimizing this favors policies expected to lead to desirable outcomes. This is also called Instrumental Value.</li>
-         <li><strong>Ambiguity:</strong> The expected uncertainty about outcomes, given the states predicted under the policy. It reflects the agent's uncertainty in its likelihood model (<InlineMath math="p(o|s)"/>). Minimizing this favors policies expected to lead to states where the outcome is predictable.</li>
+         <li><strong className="bg-blue-100 text-blue-700 px-1 rounded">Risk (or Cost):</strong> The KL divergence between the predicted outcomes under the policy (<InlineMath math="q(o|\pi)"/>) and the agent's prior preferences (<InlineMath math="p(o)"/>). Minimizing this favors policies expected to lead to desirable outcomes. This term captures the <strong className="bg-blue-100 text-blue-700 px-1 rounded">Instrumental Value</strong>.</li>
+         <li><strong className="bg-green-100 text-green-700 px-1 rounded">Ambiguity:</strong> The expected uncertainty about outcomes, given the states predicted under the policy. It reflects the agent's uncertainty in its likelihood model (<InlineMath math="p(o|s)"/>). Minimizing this favors policies expected to lead to states where the outcome is predictable.</li>
        </ul>
 
         <p><strong>Alternative Decomposition: Epistemic and Instrumental Value</strong></p>
@@ -696,45 +697,53 @@ export default function ActiveInferenceTutorialPage() {
         <p>
           Rearranging differently, focusing on the difference between expected future states and states conditioned on observations:
         </p>
-        <MathFormula inline={false} formula="G(\pi) = E_{q(o|\pi)}[KL[q(s|\pi) || q(s|o,\pi)]] - E_{q(o|\pi)}[\log p(o)]"/>
-        <MathFormula inline={false} formula="G(\pi) = \underbrace{I_q[s; o | \pi]}_{\text{Epistemic Value (Mutual Info)}} \underbrace{- E_{q(o|\pi)}[\log p(o)]}_{\text{Instrumental Value (Preferences)}}" />
+        {/* Intermediate step showing KL form (Epistemic Value) */}
+        <MathFormula inline={false} formula="G(\pi) = \textcolor{#F59E0B}{E_{q(o|\pi)}[KL[q(s|\pi) || q(s|o,\pi)]]} \textcolor{#3B82F6}{- E_{q(o|\pi)}[\log p(o)]}"/>
+        {/* Final Epistemic-Instrumental form */}
+        <MathFormula inline={false} formula="G(\pi) = \underbrace{\textcolor{#F59E0B}{I_q[s; o | \pi]}}_{\textcolor{#F59E0B}{\text{Epistemic Value (Info Gain)}}} \underbrace{\textcolor{#3B82F6}{- E_{q(o|\pi)}[\log p(o)]}}_{\textcolor{#3B82F6}{\text{Instrumental Value (Preferences)}}}"/>
         <p>
            (Note: The sign is often flipped, discussing maximizing negative EFE. Here G is minimized.)
         </p>
        <ul className="list-disc pl-6 space-y-2 my-4">
-          <li><strong>Instrumental Value:</strong> The degree to which expected outcomes align with prior preferences (<InlineMath math="p(o)"/>). Same as maximizing expected log preferences (or minimizing Risk).</li>
+          <li><strong className="bg-blue-100 text-blue-700 px-1 rounded font-semibold">Instrumental Value:</strong> The degree to which expected outcomes align with prior preferences (<InlineMath math="p(o)"/>). Same as maximizing expected log preferences (or minimizing <span className="bg-blue-100 text-blue-700 px-1 rounded">Risk</span>).</li>
          <li>
-            <span className="bg-yellow-100 px-1 rounded"><strong>Epistemic Value:</strong></span> The expected information gain about hidden states <InlineMath math="s"/> from observing future outcomes <InlineMath math="o"/> under policy <InlineMath math="\pi"/>. It's the expected reduction in uncertainty about states after seeing outcomes, quantified by the Mutual Information <InlineMath math="I_q[s; o | \pi]"/>.
-         </li>
+-            <span className="bg-yellow-100 px-1 rounded font-semibold"><span className="text-orange-600">Epistemic Value:</span></span> The expected information gain about hidden states <InlineMath math="s"/> from observing future outcomes <InlineMath math="o"/> under policy <InlineMath math="\pi"/>. It's the expected reduction in uncertainty about states after seeing outcomes, quantified by the Mutual Information <InlineMath math="\textcolor{#F59E0B}{I_q[s; o | \pi]}"/>.
++            <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">Epistemic Value:</strong> The expected information gain about hidden states <InlineMath math="s"/> from observing future outcomes <InlineMath math="o"/> under policy <InlineMath math="\pi"/>. It's the expected reduction in uncertainty about states after seeing outcomes, quantified by the Mutual Information <InlineMath math="\textcolor{#F59E0B}{I_q[s; o | \pi]}"/>.
+          </li>
        </ul>
        <p>
-         Minimizing EFE thus balances achieving preferred outcomes (Instrumental Value) with choosing actions that lead to informative observations that reduce uncertainty about the world (Epistemic Value).
+         Minimizing EFE thus balances achieving preferred outcomes (<span className="text-blue-600 font-semibold">Instrumental Value</span>) with choosing actions that lead to informative observations that reduce uncertainty about the world (<span className="text-orange-600 font-semibold">Epistemic Value</span>).
        </p>
 
        <div className="my-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-         <h4 className="font-semibold text-lg mb-2 text-center">Digging into Epistemic Value</h4>
+         <h4 className="font-semibold text-lg mb-2 text-center text-orange-700">Digging into Epistemic Value</h4>
          <p className="text-sm mb-2">
-           Epistemic value, or expected information gain, motivates exploration. It quantifies how much a policy is expected to reduce uncertainty about the hidden states <InlineMath math="s"/> by observing the resulting outcomes <InlineMath math="o"/>. It is the mutual information between predicted states and predicted observations under the policy:
-         </p>
-         <MathFormula inline={false} formula="I_q[s; o | \pi] = E_{q(o|\pi)} [KL[q(s|o,\pi) || q(s|\pi)]]"/>
-         <p className="text-sm mt-2 mb-2">
-           It can also be expressed using entropies (<InlineMath math="H[X] = -E[\log p(X)]"/>):
-         </p>
-          <MathFormula inline={false} formula="I_q[s; o | \pi] = H[q(s|\pi)] - E_{q(o|\pi)}[H[q(s|o,\pi)]]"/>
-         <p className="text-sm mt-2">
-           This shows it's the difference between the uncertainty about states *before* seeing the outcome (<InlineMath math="H[q(s|\pi)]"/>) and the expected uncertainty *after* seeing the outcome (<InlineMath math="E_{q(o|\pi)}[H[q(s|o,\pi)]]"/>). Policies that lead to large reductions in uncertainty have high epistemic value.
-         </p>
-         <p className="text-sm mt-2">
-            Alternatively, using the KL divergence formulation:
-         </p>
-          <MathFormula inline={false} formula="I_q[s; o | \pi] = KL[q(s,o|\pi) || q(s|\pi)q(o|\pi)]"/>
-         <p className="text-sm mt-2">
-           This measures how much the joint distribution under the policy differs from the product of the marginals (what you'd expect if states and observations were independent). High epistemic value means states and observations are strongly coupled under that policy.
-         </p>
-         <p className="text-xs mt-3 italic">
-            Practically, epistemic value is high when the agent is uncertain about the state (<InlineMath math="H[q(s|\pi)]"/> is high) but expects the outcomes under a policy to resolve that uncertainty (<InlineMath math="H[q(s|o,\pi)]"/> is low). If the agent is already certain, or if observations don't distinguish between states, epistemic value is low.
-         </p>
-       </div>
+-           <span className="text-orange-600 font-semibold">Epistemic value</span>, or expected information gain, motivates exploration. It quantifies how much a policy is expected to reduce uncertainty about the hidden states <InlineMath math="s"/> by observing the resulting outcomes <InlineMath math="o"/>. It is the mutual information between predicted states and predicted observations under the policy:
++           <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">Epistemic value</strong>, or expected information gain, motivates exploration. It quantifies how much a policy is expected to reduce uncertainty about the hidden states <InlineMath math="s"/> by observing the resulting outcomes <InlineMath math="o"/>. It is the mutual information between predicted states and predicted observations under the policy:
+          </p>
+          {/* Epistemic Value as KL Divergence */}
+          <MathFormula inline={false} formula="\textcolor{#F59E0B}{I_q[s; o | \pi]} = \textcolor{#F59E0B}{E_{q(o|\pi)} [KL[q(s|o,\pi) || q(s|\pi)]]}"/>
+          <p className="text-sm mt-2 mb-2">
+            It can also be expressed using entropies (<InlineMath math="H[X] = -E[\log p(X)]"/>):
+          </p>
+          {/* Epistemic Value using Entropies */}
+           <MathFormula inline={false} formula="\textcolor{#F59E0B}{I_q[s; o | \pi]} = \textcolor{#F59E0B}{H[q(s|\pi)] - E_{q(o|\pi)}[H[q(s|o,\pi)]]}"/>
+          <p className="text-sm mt-2">
+            This shows it's the difference between the uncertainty about states *before* seeing the outcome (<InlineMath math="H[q(s|\pi)]"/>) and the expected uncertainty *after* seeing the outcome (<InlineMath math="E_{q(o|\pi)}[H[q(s|o,\pi)]]"/>). Policies that lead to large reductions in uncertainty have high <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">epistemic value</strong>.
+          </p>
+          <p className="text-sm mt-2">
+             Alternatively, using the KL divergence formulation for Mutual Information:
+          </p>
+          {/* Epistemic Value as KL Divergence between joint and product of marginals */}
+           <MathFormula inline={false} formula="\textcolor{#F59E0B}{I_q[s; o | \pi]} = \textcolor{#F59E0B}{KL[q(s,o|\pi) || q(s|\pi)q(o|\pi)]}"/>
+          <p className="text-sm mt-2">
+            This measures how much the joint distribution under the policy differs from the product of the marginals (what you'd expect if states and observations were independent). High <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">epistemic value</strong> means states and observations are strongly coupled under that policy.
+          </p>
+          <p className="text-xs mt-3 italic">
+-            Practically, <span className="text-orange-600 font-semibold">epistemic value</span> is high when the agent is uncertain about the state (<InlineMath math="H[q(s|\pi)]"/> is high) but expects the outcomes under a policy to resolve that uncertainty (<InlineMath math="H[q(s|o,\pi)]"/> is low). If the agent is already certain, or if observations don't distinguish between states, <span className="text-orange-600 font-semibold">epistemic value</span> is low.
++            Practically, <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">epistemic value</strong> is high when the agent is uncertain about the state (<InlineMath math="H[q(s|\pi)]"/> is high) but expects the outcomes under a policy to resolve that uncertainty (<InlineMath math="H[q(s|o,\pi)]"/> is low). If the agent is already certain, or if observations don't distinguish between states, <strong className="bg-yellow-100 text-orange-700 px-1 rounded font-semibold">epistemic value</strong> is low.
+          </p>
+        </div>
 
       <hr className="my-10 border-gray-300" />
       {/* END NEW SECTION */}
@@ -747,92 +756,98 @@ export default function ActiveInferenceTutorialPage() {
        {/* Replace the static visualization with the interactive one */}
        <HungerExampleVisualization />
        
-       {/* Add the precision explanation visualization */}
-       <div className="my-6">
-         <h3 className="text-xl font-semibold mb-2">The Role of Precision in Policy Selection</h3>
-         <p className="mb-4">
-           In our example above, the precision parameter (γ) doesn't change the outcome because one policy is clearly optimal while the other has infinitely bad Expected Free Energy. However, precision plays a crucial role in more balanced scenarios. The visualization below explains why:
-         </p>
-         <PrecisionExplanationViz />
-       </div>
-       
-       <p>
+       {/* Keep the basic parameter setup text */}
+       <p className="mt-6">
            <strong>Planning Horizon:</strong> One step ahead (<InlineMath math="T=1"/>).
        </p>
       <p>
-        <strong>Policies:</strong> Two possible policies: <InlineMath math="\pi_1 = (u_1)"/> (Get food), <InlineMath math="\pi_2 = (u_2)"/> (Do nothing).
+        <strong>Policies:</strong> Two possible policies: <InlineMath math="\\pi_1 = (u_1)"/> (Get food), <InlineMath math="\\pi_2 = (u_2)"/> (Do nothing).
       </p>
-      <p>
-           <strong>Policy Evaluation (Calculate EFE <InlineMath math="G(\pi)"/> for <InlineMath math="\tau=1"/>):</strong>
+      
+      {/* NEW HEADING for combined calculation steps */}
+      <h3 className="text-xl font-semibold mt-8 mb-4">Detailed Calculation Steps</h3>
+      <p className="mb-4">
+           The interactive visualization above demonstrates the core calculations. Here's the step-by-step mathematical breakdown for this example:
        </p>
-      <ol className="list-decimal pl-6 space-y-2 my-4 prose-sm">
-        <li><strong>Predict States <InlineMath math="q(s_1|\pi) = B(u)q(s_0)"/>:</strong>
-               <ul className="list-none pl-4">
-                   <li>Under <InlineMath math="\pi_1"/> (Get food, <InlineMath math="u_1"/>): <InlineMath math="q(s_1|\pi_1) = B(u_1)q(s_0) = \begin{pmatrix} 1 & 1 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}"/> (Predicts state 1: Food)</li>
-                   <li>Under <InlineMath math="\pi_2"/> (Do nothing, <InlineMath math="u_2"/>): <InlineMath math="q(s_1|\pi_2) = B(u_2)q(s_0) = \begin{pmatrix} 0 & 0 \\ 1 & 1 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\ 1 \end{pmatrix}"/> (Predicts state 2: Empty)</li>
+      
+      {/* COMBINED list */}
+      <ol className="list-decimal pl-6 space-y-3 my-4 prose-sm">
+        {/* Step 1: Predict States (from old Policy Eval) */}
+        <li><strong><span className="bg-purple-100 text-purple-700 px-1 rounded">Predict Future States</span> (<InlineMath math="q(s_1|\pi) = B(u)q(s_0)"/>):</strong> Calculate the expected state distribution at <InlineMath math="t=1"/> for each policy, based on the <strong className="text-gray-700">transition matrix</strong> <InlineMath math="B(u)"/> and <strong className="text-gray-700">initial belief</strong> <InlineMath math="q(s_0) = [0, 1]"/>.
+               <ul className="list-none pl-4 mt-1 space-y-1">
+                   <li>Under <InlineMath math="\pi_1"/> (Get food, <InlineMath math="u_1"/>): <InlineMath math="q(s_1|\pi_1) = B(u_1)q(s_0) = \begin{pmatrix} 1 & 1 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}"/> (Predicts state 1: <strong className="text-green-700">Food</strong>)</li>
+                   <li>Under <InlineMath math="\pi_2"/> (Do nothing, <InlineMath math="u_2"/>): <InlineMath math="q(s_1|\pi_2) = B(u_2)q(s_0) = \begin{pmatrix} 0 & 0 \\ 1 & 1 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\ 1 \end{pmatrix}"/> (Predicts state 2: <strong className="text-red-700">Empty</strong>)</li>
                </ul>
            </li>
-         <li><strong>Predict Observations <InlineMath math="q(o_1|\pi) = A q(s_1|\pi)"/>:</strong>
-                <ul className="list-none pl-4">
-                    <li>Under <InlineMath math="\pi_1"/>: <InlineMath math="q(o_1|\pi_1) = A q(s_1|\pi_1) = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}"/> (Predicts observation 1: Fed)</li>
-                    <li>Under <InlineMath math="\pi_2"/>: <InlineMath math="q(o_1|\pi_2) = A q(s_1|\pi_2) = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\ 1 \end{pmatrix}"/> (Predicts observation 2: Hungry)</li>
+        {/* Step 2: Predict Observations (from old Policy Eval) */}
+         <li><strong><span className="bg-orange-100 text-orange-700 px-1 rounded">Predict Future Observations</span> (<InlineMath math="q(o_1|\pi) = A q(s_1|\pi)"/>):</strong> Project the predicted state distributions into expected observation distributions using the <strong className="text-gray-700">likelihood matrix</strong> <InlineMath math="A"/>.
+                <ul className="list-none pl-4 mt-1 space-y-1">
+                    <li>Under <InlineMath math="\pi_1"/>: <InlineMath math="q(o_1|\pi_1) = A q(s_1|\pi_1) = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix} \begin{pmatrix} 1 \\\\ 0 \end{pmatrix} = \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}"/> (Predicts observation 1: <strong className="text-green-700">Fed</strong>)</li>
+                    <li>Under <InlineMath math="\pi_2"/>: <InlineMath math="q(o_1|\pi_2) = A q(s_1|\pi_2) = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix} \begin{pmatrix} 0 \\\\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\\\ 1 \end{pmatrix}"/> (Predicts observation 2: <strong className="text-red-700">Hungry</strong>)</li>
                 </ul>
             </li>
-          <li><strong>Calculate EFE <InlineMath math="G(\pi) \approx \text{Risk} + \text{Ambiguity}"/>:</strong>
-                <ul className="list-none pl-4">
-                    <li>Risk = <InlineMath math="KL[q(o_1|\pi) || C] = \sum_o q(o_1|\pi) \log \frac{q(o_1|\pi)}{C_o}"/> (Using <InlineMath math="C=\begin{pmatrix} 1 \\ 0 \end{pmatrix}"/>)</li>
-                    <li>Ambiguity = <InlineMath math="E_{q(s_1|\pi)}[H[p(o_1|s_1)]]"/> (Expected entropy of likelihood columns)</li>
-                    <li>Since A is identity matrix, <InlineMath math="p(o|s)"/> is certain for each state, so columns have entropy 0. Thus, Ambiguity = 0.</li>
-                    <li>Risk(<InlineMath math="\pi_1"/>) = <InlineMath math="KL(\begin{pmatrix} 1 \\ 0 \end{pmatrix} || \begin{pmatrix} 1 \\ 0 \end{pmatrix}) = 1 \log(1/1) + 0 \log(0/0) = 0"/> (Using <InlineMath math="0\log 0 = 0"/> limit)</li>
-                    <li>Risk(<InlineMath math="\pi_2"/>) = <InlineMath math="KL(\begin{pmatrix} 0 \\ 1 \end{pmatrix} || \begin{pmatrix} 1 \\ 0 \end{pmatrix}) = 0 \log(0/1) + 1 \log(1/0) = \infty"/> (Predicted outcome is impossible under preference)</li>
-                    <li><InlineMath math="G(\pi_1) = 0 + 0 = 0"/></li>
-                    <li><InlineMath math="G(\pi_2) = \infty + 0 = \infty"/></li>
+            
+        {/* Step 3: Calculate EFE (from old Policy Eval) */}
+          <li><strong><span className="bg-indigo-100 text-indigo-700 px-1 rounded">Calculate Expected Free Energy</span> (<InlineMath math="G(\pi) \approx \text{Risk} + \text{Ambiguity}"/>):</strong> Evaluate each policy based on how well its predicted outcomes align with preferences and how predictable those outcomes are.
+                <ul className="list-none pl-4 mt-1 space-y-1">
+                    <li><strong className="text-blue-700">Risk</strong> = <InlineMath math="KL[q(o_1|\pi) || C] = \sum_o q(o_1|\pi) \log \frac{q(o_1|\pi)}{C_o}"/> (Using <strong className="text-gray-700">preferences</strong> <InlineMath math="C=\begin{pmatrix} 1 \\\\ 0 \end{pmatrix}"/>). Measures divergence from preferred outcomes.</li>
+                    <li><strong className="text-green-700">Ambiguity</strong> = <InlineMath math="E_{q(s_1|\pi)}[H[p(o_1|s_1)]]"/> (Expected entropy of likelihood columns). Measures expected outcome uncertainty given predicted states.</li>
+                    <li>Since <InlineMath math="A"/> is the identity matrix, the likelihood <InlineMath math="p(o|s)"/> is certain for each state (columns are [1, 0] or [0, 1]), meaning the entropy of each column is 0. Thus, <strong className="text-green-700">Ambiguity</strong> = 0.</li>
+                    <li><strong className="text-blue-700">Risk</strong>(<InlineMath math="\pi_1"/>) = <InlineMath math="KL(\begin{pmatrix} 1 \\\\ 0 \end{pmatrix} || \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}) = 1 \log(1/1) + 0 \log(0/0) = 0"/> (Using <InlineMath math="0\log 0 = 0"/> limit). Policy 1 <strong className="text-green-600">perfectly matches preferences</strong>.</li>
+                    <li><strong className="text-blue-700">Risk</strong>(<InlineMath math="\pi_2"/>) = <InlineMath math="KL(\begin{pmatrix} 0 \\\\ 1 \end{pmatrix} || \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}) = 0 \log(0/1) + 1 \log(1/0) = \infty"/>. Policy 2 predicts an outcome (<InlineMath math="o=2"/>) that has <strong className="text-red-600">zero probability under preferences</strong> (<InlineMath math="C_2=0"/>).</li>
+                    <li>Therefore: <InlineMath math="G(\pi_1) = \text{Risk}(\pi_1) + \text{Ambiguity} = 0 + 0 = \strong{0}"/></li>
+                    <li>And: <InlineMath math="G(\pi_2) = \text{Risk}(\pi_2) + \text{Ambiguity} = \infty + 0 = \strong{\infty}"/></li>
                 </ul>
             </li>
-           <li><strong>Calculate Policy Probabilities <InlineMath math="q(\pi) = \sigma(-\gamma G(\pi))"/>:</strong>
-                <ul className="list-none pl-4">
-                   <li>Assume precision <InlineMath math="\gamma=1"/>.</li>
-                    <li><InlineMath math="q(\pi_1) \propto e^{-1 \cdot 0} = 1"/></li>
-                    <li><InlineMath math="q(\pi_2) \propto e^{-1 \cdot \infty} = 0"/></li>
-                    <li>Normalizing: <InlineMath math="q(\pi) = [1, 0]"/>. Agent is certain it should follow policy <InlineMath math="\pi_1"/> (Get food).</li>
-                </ul>
+            
+        {/* Step 4: Calculate Policy Probabilities (from old Policy Eval) */}
+           <li><strong><span className="bg-teal-100 text-teal-700 px-1 rounded">Calculate Policy Probabilities</span> (<InlineMath math="q(\pi) = \sigma(-\gamma G(\pi))"/>):</strong> Convert EFE values into a probability distribution over policies using the <strong className="text-gray-700">softmax function</strong>, modulated by <strong className="text-gray-700">precision</strong> <InlineMath math="\gamma"/>.
+                 <ul className="list-none pl-4 mt-1 space-y-1">
+                    <li>Assume precision <InlineMath math="\gamma=1"/> for simplicity.</li>
+                     <li>Unnormalized probability for <InlineMath math="\pi_1"/>: <InlineMath math="\exp(-\gamma G(\pi_1)) = e^{-1 \cdot 0} = 1"/>.</li>
+                     <li>Unnormalized probability for <InlineMath math="\pi_2"/>: <InlineMath math="\exp(-\gamma G(\pi_2)) = e^{-1 \cdot \infty} = 0"/>.</li>
+                     <li>Normalizing <InlineMath math="[1, 0]"/> gives <InlineMath math="q(\pi) = [1, 0]"/>. The agent is <strong className="text-teal-600">certain</strong> it should select policy <InlineMath math="\pi_1"/> (<strong className="text-green-700">Get food</strong>).</li>
+                 </ul>
+            </li>
+ 
+         {/* Step 5: Calculate Marginal State Prediction (from old Action Selection) */}
+          <li><strong><span className="bg-purple-100 text-purple-700 px-1 rounded">Calculate Overall Expected State</span> (<InlineMath math="q(s_t)"/>):</strong> Average the state predictions (<InlineMath math="q(s_t|\pi)"/> from Step 1) weighted by the <strong className="text-teal-700">policy probabilities</strong> (<InlineMath math="q(\pi)"/> from Step 4): <InlineMath math="q(s_t) = \sum_\pi q(\pi) q(s_t|\pi)"/>.
+             <br/>
+             <span className="ml-4">In our example (for <InlineMath math="t=1"/>): <InlineMath math="q(s_1) = q(\pi_1)q(s_1|\pi_1) + q(\pi_2)q(s_1|\pi_2) = 1 \cdot \begin{pmatrix} 1 \\\\ 0 \end{pmatrix} + 0 \cdot \begin{pmatrix} 0 \\\\ 1 \end{pmatrix} = \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}"/></span><br/>
+             <span className="ml-4">The agent expects, overall, to be in state 1 (<strong className="text-green-700">Food</strong>) at t=1.</span>
            </li>
-       </ol>
+           
+         {/* Step 6: Calculate Expected Outcome (from old Action Selection) */}
+          <li><strong><span className="bg-orange-100 text-orange-700 px-1 rounded">Calculate Overall Expected Outcome</span> (<InlineMath math="q(o_t)"/>):</strong> Project the <strong className="text-purple-700">overall expected state</strong> (<InlineMath math="q(s_t)"/> from Step 5) into the overall expected observation using the likelihood: <InlineMath math="q(o_t) = A q(s_t)"/>.
+                <br/>
+                <span className="ml-4">In our example (for <InlineMath math="t=1"/>): <InlineMath math="q(o_1) = A q(s_1) = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix} \begin{pmatrix} 1 \\\\ 0 \end{pmatrix} = \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}"/></span><br/>
+                <span className="ml-4">The agent expects, overall, to observe '<strong className="text-green-700">Fed</strong>' (o=1) at t=1.</span>
+          </li>
+          
+         {/* Step 7: Evaluate Specific Action Consequences (from old Action Selection) */}
+         <li><strong><span className="bg-pink-100 text-pink-700 px-1 rounded">Evaluate Immediate Action Consequences</span> (<InlineMath math="q(o_t|u) = A B(u) q(s_{t-1})"/>):</strong> For each possible immediate action <InlineMath math="u"/> available *now* (at <InlineMath math="t=0"/>), calculate the specific outcome distribution (<InlineMath math="o_1"/>) that would result if that action were taken, starting from the <strong className="text-gray-700">*current* belief</strong> <InlineMath math="q(s_0)"/>.
+             <ul className="list-none pl-4 mt-1 space-y-1">
+               <li>If action <InlineMath math="u_1"/> (Get food) is taken now: <InlineMath math="q(o_1|u_1) = A B(u_1) q(s_0) = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix} \begin{pmatrix} 1 & 1 \\\\ 0 & 0 \end{pmatrix} \begin{pmatrix} 0 \\\\ 1 \end{pmatrix} = \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}"/> (Outcome would be '<strong className="text-green-700">Fed</strong>')</li>
+               <li>If action <InlineMath math="u_2"/> (Do nothing) is taken now: <InlineMath math="q(o_1|u_2) = A B(u_2) q(s_0) = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix} \begin{pmatrix} 0 & 0 \\\\ 1 & 1 \end{pmatrix} \begin{pmatrix} 0 \\\\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\\\ 1 \end{pmatrix}"/> (Outcome would be '<strong className="text-red-700">Hungry</strong>')</li>
+              </ul>
+         </li>
+         
+         {/* Step 8: Select Action (from old Action Selection) */}
+         <li><strong><span className="bg-lime-100 text-lime-700 px-1 rounded">Select Action</span> (<InlineMath math="\text{argmin}_u KL[q(o_t|u) || q(o_t)]"/>):</strong> Choose the immediate action <InlineMath math="u"/> that minimizes the <strong className="text-gray-700">KL divergence</strong> between the outcome predicted <strong className="text-pink-700">*if that specific action is taken*</strong> (<InlineMath math="q(o_t|u)"/> from Step 7) and the <strong className="text-orange-700">*overall expected outcome*</strong> averaged over policies (<InlineMath math="q(o_t)"/> from Step 6). This means selecting the action that best fulfills the agent's overall expectations.
+               <ul className="list-none pl-4 mt-1 space-y-1">
+                   <li>Divergence for <InlineMath math="u_1"/>: <InlineMath math="KL[q(o_1|u_1) || q(o_1)] = KL(\begin{pmatrix} 1 \\\\ 0 \end{pmatrix} || \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}) = 0"/>.</li>
+                   <li>Divergence for <InlineMath math="u_2"/>: <InlineMath math="KL[q(o_1|u_2) || q(o_1)] = KL(\begin{pmatrix} 0 \\\\ 1 \end{pmatrix} || \begin{pmatrix} 1 \\\\ 0 \end{pmatrix}) = \infty"/>.</li>
+                   <li>The action <InlineMath math="u_1"/> (<strong className="text-green-700">Get food</strong>) <strong className="text-green-600">minimizes the KL divergence</strong> (0).</li>
+               </ul>
+          </li>
+     </ol>
+     <p>
+       Therefore, the agent selects action <InlineMath math="u_1"/> (Get food) because taking that action leads precisely to the outcome it expects (<InlineMath math="o=1"/>), based on its policy evaluation. The environment (generative process) then yields the next observation <InlineMath math="o_1"/>, the agent updates its belief <InlineMath math="q(s_1)"/> using Bayesian inference (perception), and the cycle repeats. The agent acts to make its (policy-informed) predictions come true.
+     </p>
 
       <hr className="my-10 border-gray-300" />
 
-      <h2 id="action-selection" className="text-3xl font-bold mb-6">Action Selection</h2>
-      <p>
-           Once policies are evaluated (<InlineMath math="q(\pi)"/> is computed), how is the immediate action (<InlineMath math="u_t"/>) chosen? Instead of just picking the action from the most probable policy, Active Inference typically employs a more nuanced approach that acts to fulfill the expectations averaged over policies.
-       </p>
-      <ol className="list-decimal pl-6 space-y-2 my-4 prose-sm">
-         <li><strong>Calculate Marginal State Prediction <InlineMath math="q(s_t)"/>:</strong> Average the state predictions for the next step (<InlineMath math="t=1"/> here) from each policy, weighted by the policy probability: <InlineMath math="q(s_t) = \sum_\pi q(\pi) q(s_t|\pi)"/>.<br/>
-            In our example: <InlineMath math="q(s_1) = q(\pi_1)q(s_1|\pi_1) + q(\pi_2)q(s_1|\pi_2) = 1 \cdot \begin{pmatrix} 1 \\ 0 \end{pmatrix} + 0 \cdot \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}"/>. The agent expects to be in state 1 (Food) at t=1.
-          </li>
-         <li><strong>Calculate Expected Outcome <InlineMath math="q(o_t)"/>:</strong> Project the marginal state prediction into expected observations using the likelihood: <InlineMath math="q(o_t) = A q(s_t)"/>.<br/>
-               In our example: <InlineMath math="q(o_1) = A q(s_1) = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}"/>. Agent expects to observe 'Fed' (o=1).
-         </li>
-        <li><strong>Evaluate Action Consequences <InlineMath math="q(o_t|u) = A B(u) q(s_{t-1})"/>:</strong> For each possible immediate action <InlineMath math="u"/> at the current time (<InlineMath math="t=0"/>), calculate the outcome distribution (<InlineMath math="o_1"/>) that *would* result if that action were taken, starting from the current belief <InlineMath math="q(s_0)"/>.
-            <ul className="list-none pl-4">
-              <li>Action <InlineMath math="u_1"/> (Get food): <InlineMath math="q(o_1|u_1) = A B(u_1) q(s_0) = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} 1 & 1 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}"/> ('Fed')</li>
-              <li>Action <InlineMath math="u_2"/> (Do nothing): <InlineMath math="q(o_1|u_2) = A B(u_2) q(s_0) = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} 0 & 0 \\ 1 & 1 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\ 1 \end{pmatrix}"/> ('Hungry')</li>
-             </ul>
-        </li>
-        <li><strong>Select Action <InlineMath math="\text{argmin}_u KL[q(o_t|u) || q(o_t)]"/>:</strong> Choose the action <InlineMath math="u"/> that minimizes the KL divergence between the outcome predicted *if that specific action is taken* (<InlineMath math="q(o_t|u)"/>) and the overall expected outcome averaged over policies (<InlineMath math="q(o_t)"/>).
-              <ul className="list-none pl-4">
-                  <li>For <InlineMath math="u_1"/>: <InlineMath math="KL[q(o_1|u_1) || q(o_1)] = KL(\begin{pmatrix} 1 \\ 0 \end{pmatrix} || \begin{pmatrix} 1 \\ 0 \end{pmatrix}) = 0"/>.</li>
-                  <li>For <InlineMath math="u_2"/>: <InlineMath math="KL[q(o_1|u_2) || q(o_1)] = KL(\begin{pmatrix} 0 \\ 1 \end{pmatrix} || \begin{pmatrix} 1 \\ 0 \end{pmatrix}) = \infty"/>.</li>
-                  <li>The action <InlineMath math="u_1"/> (Get food) minimizes the KL divergence.</li>
-              </ul>
-         </li>
-    </ol>
-    <p>
-      The agent selects action <InlineMath math="u_1"/> because taking that action leads to the outcome it most expects (<InlineMath math="o=1"/>), based on its policy evaluation. The environment (generative process) then yields the next observation <InlineMath math="o_1"/>, the agent updates its belief <InlineMath math="q(s_1)"/> using Bayes' rule (perception), and the cycle of planning and action repeats. The agent acts to make its predictions come true.
-    </p>
-
-    <hr className="my-10 border-gray-300" />
-
-   <h2 id="summary" className="text-3xl font-bold mb-6">Summary & The Big Picture</h2>
+   <h2 id="summary" className="text-3xl font-bold mb-6\">Summary & The Big Picture</h2>
    <p>
      Active Inference proposes a unified mechanism for perception, learning, planning, and action, all driven by the imperative to minimize Free Energy (a proxy for surprise). The core loop involves:
    </p>

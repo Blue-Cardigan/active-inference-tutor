@@ -1,0 +1,65 @@
+// EXPECTED FREE ENERGY
+Expected Free Energy G
+
+∑ q(s_t|π) log [q(s_t|π)/p(o_t, s_t|π)]
+s
+
+// EXPANSION OF FREE ENERGY
+= ∑ q(s_t|π) ∑ p(o_t|s_t) log [q(s_t|π)/p(o_t, s_t|π)]
+  s         o
+
+= ∑ p(o_t|s_t) q(s_t|π) log [q(s_t|π)/p(o_t, s_t|π)]    p(a,b) = p(b|a) p(a)
+  o,s
+
+// DECOMPOSITION INTO EPISTEMIC VALUE AND PREFERENCES
+= ∑ p(o_t|s_t) q(s_t|π) log [q(s_t|π)/(p(s_t|o_t, π) p(o_t))]    prior preferences on future outcomes
+  o,s
+
+// EPISTEMIC VALUE AND PRIOR PREFERENCES
+- Epistemic value
+= ∑ p(o_t|s_t) q(s_t|π) log [q(s_t|π)/p(s_t|o_t, π)] - ∑ p(o_t|s_t) q(s_t|π) log p(o_t)
+  o,s                                                  o,s 
+
+// BAYES RULE APPLICATION
+Bayes rule  [q(s_t|π)/p(s_t|o_t, π)] = [q(s_t|π) q(o_t|π)]/[p(o_t|s_t, π) q(s_t|π)] = [q(o_t|π)]/[p(o_t|s_t, π)]  p(a|b) = [p(b|a) p(a)]/p(b)
+
+= ∑ p(o_t|s_t) q(s_t|π) log [q(o_t|π)/p(o_t|s_t, π)] - ∑ p(o_t|s_t) q(s_t|π) log p(o_t)
+  o,s                                                  o,s
+
+// EPISTEMIC VALUE REFORMULATION
+- Epistemic value
+
+// PREDICTED OUTCOMES FORMULATION
+= ∑ p(o_t|s_t) q(s_t|π) log [q(o_t|π)/(p(o_t) p(o_t|s_t, π))]  ← predicted outcomes
+  o,s
+
+// REORGANIZATION OF TERMS
+= ∑ q(s_t|π) p(o_t|s_t) log [q(o_t|π)/p(o_t)] - ∑ q(s_t|π) ∑ p(o_t|s_t) log p(o_t|s_t)
+  o,s                                           s           o
+
+// DEFINITIONS: KL DIVERGENCE AND ENTROPY
+KL(p(a)||q(a)) = ∑ p(a) log [p(a)/q(a)]        H[p(a)] = -∑ p(a) log p(a)
+                 a                                        a
+
+// FINAL FORM: EXPECTED COST AND EXPECTED AMBIGUITY
+= KL(q(o_t|π)||p(o_t)) + ∑ q(s_t|π) H[p(o_t|s_t)]
+                          s
+  Expected cost            Expected Ambiguity
+  (Risk)                   (Uncertainty in state-observation mapping)
+
+// MUTUAL INFORMATION DEFINITION
+MI(a,b) = H[p(a)] - H[p(a|b)]  H[p(a)] = -∑ p(a) log p(a)
+        = H[p(b)] - H[p(b|a)]             a
+
+// EPISTEMIC VALUE AS MUTUAL INFORMATION
+- Epistemic value (Information Gain)
+∑ p(o_t|s_t) q(s_t|π) log [q(o_t|π)/p(o_t|s_t, π)]
+o,s
+
+// MUTUAL INFORMATION ALTERNATIVE FORMS
+MI(a,b) = ∑ p(a,b) log [p(a,b)/(p(a)p(b))]       -log(a) = log(1/a)
+Mutual     a,b
+information
+
+= ∑ p(a|b) p(b) log [p(a|b)p(b)/(p(a)p(b))] = ∑ p(a|b) p(b) log [p(a|b)/p(a)]
+  a,b                                          a,b 

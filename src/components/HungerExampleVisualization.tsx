@@ -1,21 +1,81 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import InlineMath from '@matejmazur/react-katex';
-import { ArrowDown, ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 
-// Type definitions
-interface MatrixDisplay {
-  matrix: number[][];
-  name: string;
-  symbol: string;
-  description: string;
-}
+// Dynamically import the explanation component
+import PrecisionExplanationViz from './PrecisionExplanationViz';
+
+const StepDisplay = forwardRef<HTMLDivElement, {
+  index: number;
+  title: string;
+  isActive: boolean;
+  showNext?: boolean;
+  showPrevious?: boolean;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  children: React.ReactNode;
+}>(({
+  index,
+  title,
+  isActive,
+  showNext = false,
+  showPrevious = false,
+  onNext,
+  onPrevious,
+  children,
+}, ref) => {
+  return (
+    <div
+      ref={ref}
+      tabIndex={-1}
+      className={`border rounded-lg transition-colors duration-300 ease-in-out outline-none ${isActive ? 'bg-blue-50 border-blue-300 shadow-md' : 'bg-gray-50 border-gray-200'}`}
+    >
+      <h4 className="text-sm font-semibold flex items-center gap-2 mb-3 p-4 pb-0">
+        <span className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-700'}`}>
+          {index}
+        </span>
+        {title}
+      </h4>
+      <div className="px-4">
+        <div className={`mt-2`}>
+          {children}
+        </div>
+      </div>
+      <div className="px-4 pb-4">
+        <div className="mt-4 flex justify-between items-center pt-3 border-t border-gray-200 min-h-[30px]">
+          {/* Always render Previous button, control visibility */}
+          <button
+            onClick={onPrevious}
+            className={`px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs transition-opacity ${showPrevious ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+            disabled={!showPrevious} // Also disable logically
+          >
+            ← Previous Step
+          </button>
+
+          {/* Always render Next button, control visibility */}
+          <button
+            onClick={onNext}
+            className={`px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs transition-opacity ${showNext ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+            disabled={!showNext} // Also disable logically
+          >
+            Next Step →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Add display name for React DevTools
+StepDisplay.displayName = 'StepDisplay';
 
 export default function HungerExampleVisualization() {
   // Model parameters
   const [precision, setPrecision] = useState(1);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isPrecisionExplanationOpen, setIsPrecisionExplanationOpen] = useState(false); // State for dropdown
   
   // Initial belief state (certainty of state 2: Empty)
   const initialBelief = [0, 1];
@@ -170,28 +230,6 @@ export default function HungerExampleVisualization() {
     </div>
   );
   
-  // Helper to display steps in the calculation
-  const StepDisplay = ({ index, title, isActive, children }: { 
-    index: number,
-    title: string,
-    isActive: boolean, 
-    children: React.ReactNode 
-  }) => (
-    <div 
-      className={`p-4 border rounded-lg transition-all ${isActive ? 'bg-blue-50 border-blue-300 shadow-md' : 'bg-gray-50 border-gray-200'}`}
-    >
-      <h4 className="text-sm font-semibold flex items-center gap-2">
-        <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-          {index}
-        </span>
-        {title}
-      </h4>
-      <div className={`mt-2 ${isActive ? 'opacity-100' : 'opacity-90'}`}>
-        {children}
-      </div>
-    </div>
-  );
-  
   // Helper to highlight calculated values
   const HighlightedValue = ({ label, value, isVector = false }: { label: string, value: any, isVector?: boolean }) => (
     <div className="bg-yellow-50 border border-yellow-200 rounded px-2 py-1 inline-flex items-center mr-2 mb-2">
@@ -263,50 +301,17 @@ export default function HungerExampleVisualization() {
             </div>
           </div>
         </div>
-        
-        <div className="mt-4">
-          <label className="block text-sm font-medium mb-1">
-            Precision (<InlineMath math="\gamma" />): {precision.toFixed(1)}
-          </label>
-          <input
-            type="range"
-            min="0.1"
-            max="10"
-            step="0.1"
-            value={precision}
-            onChange={(e) => setPrecision(parseFloat(e.target.value))}
-            className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Higher precision (<InlineMath math="\gamma" />) increases the agent's confidence in selecting policies with lower Expected Free Energy.
-          </p>
-        </div>
-      </div>
-      
-      {/* Steps control */}
-      <div className="mb-4 flex justify-between items-center">
-        <button 
-          onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-          disabled={currentStep === 0}
-          className="px-3 py-1 bg-blue-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-        <div className="text-sm font-medium">
-          Step {currentStep + 1} of 4
-        </div>
-        <button 
-          onClick={() => setCurrentStep(Math.min(3, currentStep + 1))}
-          disabled={currentStep === 3}
-          className="px-3 py-1 bg-blue-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          Next
-        </button>
       </div>
       
       {/* Step-by-step visualization */}
       <div className="space-y-4">
-        <StepDisplay index={1} title="Predict Future States" isActive={currentStep >= 0}>
+        <StepDisplay
+          index={1}
+          title="Predict Future States"
+          isActive={currentStep >= 0}
+          showNext={currentStep === 0}
+          onNext={() => { setCurrentStep(1); }}
+        >
           <div className="p-2 text-sm">
             <p className="mb-2">For each policy, we predict the state at time <InlineMath math="t=1" /> given the initial state:</p>
             
@@ -366,7 +371,15 @@ export default function HungerExampleVisualization() {
           </div>
         </StepDisplay>
         
-        <StepDisplay index={2} title="Predict Observations" isActive={currentStep >= 1}>
+        <StepDisplay
+          index={2}
+          title="Predict Observations"
+          isActive={currentStep >= 1}
+          showPrevious={currentStep === 1}
+          onPrevious={() => { setCurrentStep(0); }}
+          showNext={currentStep === 1}
+          onNext={() => { setCurrentStep(2); }}
+        >
           <div className="p-2 text-sm">
             <p className="mb-2">Project the predicted states into observation space:</p>
             
@@ -427,7 +440,15 @@ export default function HungerExampleVisualization() {
           </div>
         </StepDisplay>
         
-        <StepDisplay index={3} title="Calculate Expected Free Energy" isActive={currentStep >= 2}>
+        <StepDisplay
+          index={3}
+          title="Calculate Expected Free Energy"
+          isActive={currentStep >= 2}
+          showPrevious={currentStep === 2}
+          onPrevious={() => { setCurrentStep(1); }}
+          showNext={currentStep === 2}
+          onNext={() => { setCurrentStep(3); }}
+        >
           <div className="p-2 text-sm">
             <p className="mb-2">Calculate EFE (<InlineMath math="G(\pi)" />) for each policy based on Risk and Ambiguity:</p>
             
@@ -495,7 +516,13 @@ export default function HungerExampleVisualization() {
           </div>
         </StepDisplay>
         
-        <StepDisplay index={4} title="Action Selection" isActive={currentStep >= 3}>
+        <StepDisplay
+          index={4}
+          title="Action Selection"
+          isActive={currentStep >= 3}
+          showPrevious={currentStep === 3}
+          onPrevious={() => { setCurrentStep(2); }}
+        >
           <div className="p-2 text-sm">
             <p className="mb-2">The agent selects the action that minimizes the KL divergence between predicted observations and overall expected observations:</p>
             
@@ -534,7 +561,7 @@ export default function HungerExampleVisualization() {
             <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
               <p className="font-medium text-center">
                 The agent chooses Action {selectedAction}: {selectedAction === 1 ? 'Get Food' : 'Do Nothing'} 
-                to fulfill its expected observations.
+                &nbsp;to fulfill its expected observations.
               </p>
               <div className="mt-2 flex flex-wrap gap-2 justify-center">
                 <HighlightedValue label="Selected Action" value={selectedAction === 1 ? 'Get Food' : 'Do Nothing'} />
@@ -545,12 +572,42 @@ export default function HungerExampleVisualization() {
         </StepDisplay>
       </div>
       
-      <div className="mt-6 pt-4 border-t border-gray-200 text-sm text-gray-600">
-        <p className="text-center">
-          This example demonstrates how an agent selects actions based on minimizing Expected Free Energy.
-          Try adjusting the precision to see how it affects policy selection confidence.
-        </p>
-      </div>
+      {/* Moved Precision Slider Section */} 
+       <div className="my-6 mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+           <h4 className="text-sm font-semibold mb-2 text-center">Adjust Model Precision</h4>
+           <label className="block text-sm font-medium mb-1 text-center">
+             Precision (<InlineMath math="\gamma" />): {precision.toFixed(1)}
+           </label>
+           <input
+             type="range"
+             min="0.1"
+             max="10"
+             step="0.1"
+             value={precision}
+             onChange={(e) => setPrecision(parseFloat(e.target.value))}
+             className="w-full max-w-md mx-auto h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer block"
+           />
+           <p className="text-xs text-gray-500 mt-2 text-center">
+             Higher precision (<InlineMath math="\gamma" />) increases the agent's confidence in selecting policies with lower Expected Free Energy.
+           </p>
+
+            {/* ADD Precision Explanation Dropdown Here */} 
+            <div className="mt-4 pt-3 border-t border-gray-200">
+               <button 
+                 onClick={() => setIsPrecisionExplanationOpen(!isPrecisionExplanationOpen)}
+                 className="flex items-center justify-center w-full text-center text-sm font-medium text-blue-700 hover:text-blue-900"
+               >
+                 <span className="mr-1">Explain Precision (γ)</span>
+                 {isPrecisionExplanationOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+               </button>
+               {isPrecisionExplanationOpen && (
+                 <div className="mt-2">
+                   {/* Ensure PrecisionExplanationViz is imported */}
+                    <PrecisionExplanationViz currentPrecision={precision} />
+                 </div>
+               )}
+             </div>
+         </div>
     </div>
   );
 } 

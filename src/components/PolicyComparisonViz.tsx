@@ -145,7 +145,7 @@ export default function PolicyComparisonViz() {
           <BarChart data={policyData} margin={{ top: 20, right: 10, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false}/>
             <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" height={40} />
-            <YAxis yAxisId="left" orientation="left" stroke="#8884d8" tick={{ fontSize: 10 }} label={{ value: 'Simulated EFE', angle: -90, position: 'insideLeft', fontSize: 10, offset: 10 }} />
+            <YAxis yAxisId="left" orientation="left" stroke="#8884d8" tick={{ fontSize: 10 }} label={{ value: 'Simulated EFE', angle: -90, position: 'insideLeft', fontSize: 10, offset: 20 }} />
             <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" tick={{ fontSize: 10 }} domain={[0, 1]} tickFormatter={(tick) => `${(tick * 100).toFixed(0)}%`} label={{ value: 'Probability', angle: 90, position: 'insideRight', fontSize: 10, offset: 10 }}/>
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(200, 200, 240, 0.2)' }}/>
             <Legend verticalAlign="top" height={30} wrapperStyle={{fontSize: "10px"}} />
