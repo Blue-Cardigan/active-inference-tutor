@@ -905,7 +905,11 @@ export default function ActiveInferenceTutorialPage() {
 
   <div className="mt-12 pt-8 border-t border-gray-300">
     <h3 className="text-xl font-semibold mb-4">Further Reading</h3>
+    <p className="text-sm mb-3">
+        This tutorial is heavily based on the excellent tutorial provided in:
+    </p>
     <ul className="list-disc pl-6 space-y-2 text-sm">
+      <li>Solopchuk, O. (2021). Tutorial on Active Inference. Medium. <a href="https://medium.com/@solopchuk/tutorial-on-active-inference-30edcf50f5dc" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://medium.com/@solopchuk/tutorial-on-active-inference-30edcf50f5dc</a></li>
       {/* Add actual links if available */}
       <li>Friston, K. (2010). The free-energy principle: a unified brain theory? Nature Reviews Neuroscience, 11(2), 127-138.</li>
       <li>Friston, K., FitzGerald, T., Rigoli, F., Schwartenbeck, P., & Pezzulo, G. (2017). Active inference: A process theory. Neural Computation, 29(1), 1-49.</li>
