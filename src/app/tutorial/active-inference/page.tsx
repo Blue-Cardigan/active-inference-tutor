@@ -6,6 +6,7 @@ import 'katex/dist/katex.min.css';
 import InlineMath from '@matejmazur/react-katex';
 import BlockMath from '@matejmazur/react-katex';
 import { ArrowRight } from 'lucide-react';
+import { Utensils, ShieldAlert, Home, Brain, Cloudy, Sun, Pause, Play } from 'lucide-react';
 
 // Create a safer Math component that won't conflict with native Math
 const MathFormula = ({ inline, formula }: { inline?: boolean; formula: string }) => {
@@ -99,35 +100,14 @@ const ConvexityExplanation = () => (
     </div>
 );
 
-// Local component: MinimalisticExampleViz 
-const MinimalisticExampleViz = () => (
-  <div className="my-6 p-4 border rounded bg-blue-50 text-sm prose-sm">
-    <h4 className="font-semibold text-center mb-2">Scenario: Hunger & Food</h4>
-    <ul className="list-none pl-0">
-      <li><strong>State (<InlineMath math="s"/>):</strong> 1: Food Available, 2: Empty</li>
-      <li><strong>Observation (<InlineMath math="o"/>):</strong> 1: Fed, 2: Hungry</li>
-      <li><strong>Action (<InlineMath math="u"/>):</strong> 1: Get Food, 2: Do Nothing</li>
-      <li><strong>Initial Belief (<InlineMath math="q(s_0)"/>):</strong> Certainty of State 2 (Empty) = <InlineMath math="[0, 1]^T"/></li>
-      <li><strong>Likelihood (<InlineMath math="A = p(o|s)"/>):</strong> Identity matrix (Perfect sensing)</li>
-      <li><strong>Transitions (<InlineMath math="B(u) = p(s_{t+1}|s_t, u)"/>):</strong> Deterministic based on action</li>
-      <ul className="list-disc pl-5 text-xs mt-1">
-          <li><InlineMath math="B(u_1)"/> (Get Food): Always leads to State 1 (Food).</li>
-          <li><InlineMath math="B(u_2)"/> (Do Nothing): Always leads to State 2 (Empty).</li>
-      </ul>
-      <li><strong>Preferences (<InlineMath math="C = p(o)"/>):</strong> Strong preference for Observation 1 (Fed) = <InlineMath math="[1, 0]^T"/></li>
-     </ul>
-  </div>
-);
+// Import the NEW Interactive Grid World visualization
+const InteractiveGridWorld = dynamic(() => import('@/components/InteractiveGridWorld'), { ssr: false, loading: () => <div className="h-[600px] flex items-center justify-center">Loading interactive grid world...</div> });
 
 export default function ActiveInferenceTutorialPage() {
   // State for Probability Distribution visualization (kept for general concept)
   const [mean, setMean] = useState(0.5);
   const [stdDev, setStdDev] = useState(0.2);
   const [points, setPoints] = useState<{ x: number; y: number }[]>([]);
-
-  // State for Free Energy visualization (conceptual)
-  const [currentEnergy, setCurrentEnergy] = useState(0);
-  const [energyExplanation, setEnergyExplanation] = useState<string | null>(null);
 
   // State for Surprise visualization
   const [selectedProbability, setSelectedProbability] = useState(0.5);
@@ -159,18 +139,6 @@ export default function ActiveInferenceTutorialPage() {
     const scaledPoints = newPoints.map(p => ({ x: p.x, y: maxY > 0 ? 1 - (p.y / maxY) * 0.9 : 0.5 })); // Scale and invert for canvas
     setPoints(scaledPoints);
   }, [mean, stdDev]);
-
-  // Handler for Free Energy update (conceptual viz)
-  const handleEnergyChange = (energy: number) => {
-    setCurrentEnergy(energy);
-    if (energy < 30) {
-      setEnergyExplanation("Low Free Energy: Good alignment between model and input (low surprise, low complexity). Preferred state.");
-    } else if (energy < 70) {
-      setEnergyExplanation("Moderate Free Energy: Some mismatch. May need belief updates or action.");
-    } else {
-      setEnergyExplanation("High Free Energy: Significant mismatch/surprise. Strong drive to update beliefs or act.");
-    }
-  };
 
   // Effect for policy probability calculation based on EFE and precision (gamma)
   useEffect(() => {
@@ -219,7 +187,12 @@ export default function ActiveInferenceTutorialPage() {
     <article className="prose prose-lg max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8 text-center">Active Inference: A Primer</h1>
 
-      <p>
+      {/* Display the generated SVG icon */}
+      <div className="flex justify-center my-6">
+          <img src="/icons/active-inference-icon.svg" alt="Active Inference Cycle Icon" width="80" height="80" />
+      </div>
+
+      <p className="mb-4">
         Active Inference is a theoretical framework originating from neuroscience, aiming to provide a unified account of perception, action, learning, and decision-making under a single principle: <strong>Free Energy Minimization</strong>. It posits that biological agents (like brains) act to minimize their long-term average surprise, which is equivalent to maximizing the evidence for their internal model of the world.
       </p>
 
@@ -750,10 +723,8 @@ export default function ActiveInferenceTutorialPage() {
 
       <h2 id="minimal-example" className="text-3xl font-bold mb-6">Minimalistic Example: Hunger Games</h2>
       <p>
-        Let's illustrate policy evaluation and selection with the simple hunger scenario described earlier.
+        Let's illustrate policy evaluation and selection with the simple hunger scenario described earlier. This interactive component walks through the calculations step-by-step.
       </p>
-       
-       {/* Replace the static visualization with the interactive one */}
        <HungerExampleVisualization />
        
        {/* Keep the basic parameter setup text */}
@@ -847,7 +818,44 @@ export default function ActiveInferenceTutorialPage() {
 
       <hr className="my-10 border-gray-300" />
 
-   <h2 id="summary" className="text-3xl font-bold mb-6\">Summary & The Big Picture</h2>
+      {/* INSERT NEW SECTION FOR INTERACTIVE GRID WORLD */}
+      <h2 id="interactive-grid-world" className="text-3xl font-bold mb-6">Interactive Grid World Simulation</h2>
+      <p className="mb-4">
+          Now let's explore a slightly more complex scenario. In this interactive grid world, you can place the agent (<Brain className="inline-block -mt-1 mx-px" size={16} />), food sources (<Utensils className="inline-block -mt-1 mx-px" size={16} />), predators (<ShieldAlert className="inline-block -mt-1 mx-px" size={16} />), and shelters (<Home className="inline-block -mt-1 mx-px" size={16} />). You can also toggle the weather conditions (<Cloudy className="inline-block -mt-1 mx-px" size={16} /> / <Sun className="inline-block -mt-1 mx-px" size={16} />).
+      </p>
+      {/* ADDED GENERAL EXPLANATION */}
+      <div className="p-4 border border-blue-200 bg-blue-50 rounded-lg text-sm mb-6 not-prose">
+          <h4 className="font-semibold text-base text-blue-800 mb-2">How the Simulation Works:</h4>
+          <p className="mb-1">
+              The agent's goal is to minimize its <strong title="Expected Free Energy: A quantity the agent seeks to minimize. It balances the drive to achieve preferred outcomes (low Risk) and the drive to reduce uncertainty about future outcomes (low Ambiguity).">Expected Free Energy (EFE)</strong> over a short planning horizon (here, just one step ahead).
+          </p>
+          <p className="mb-1">
+              At each time step, the agent performs the following loop:
+              <ol className="list-decimal pl-5 my-1">
+                  <li><strong>Evaluates Policies:</strong> It considers possible actions (Stay, North, East, South, West). For each action (policy), it calculates the EFE based on its current <strong title="Belief: The agent's probability distribution over possible hidden states (its location on the grid).">belief</strong> about its state, the environment's <strong title="Likelihood: How observations relate to hidden states (here, noisy position).">likelihood</strong> model, and its <strong title="Preferences: The agent's desired distribution over future outcomes (e.g., preferring food, avoiding predators).">preferences</strong>.</li>
+                  <li><strong>Selects Action:</strong> It converts the EFE values into probabilities using a softmax function (influenced by <strong title="Precision (γ): Controls confidence in choosing the best (lowest EFE) policy.">Precision γ</strong>) and selects an action stochastically based on these probabilities. Policies with lower EFE are more likely to be chosen.</li>
+                  <li><strong>Updates Belief:</strong> It executes the chosen action and updates its belief about its new state based on the predictable consequences of its action (using the <strong title="Transitions: How states change given an action (e.g., moving North changes location).">transition model</strong>). <em>(Note: A full Active Inference agent would also incorporate a new observation here to refine its belief via perception, but this simulation simplifies that step.)</em></li>
+              </ol>
+          </p>
+          <p>
+              Use the <Pause size={12} className='inline -mt-px mx-px'/> / <Play size={12} className='inline -mt-px mx-px'/> button to pause and inspect the detailed calculations, including visualizations of beliefs and predictions.
+          </p>
+      </div>
+      <p>
+          Observe how the agent's preferences (seeking food, avoiding predators, seeking shelter in bad weather) influence the EFE calculated for different actions. The agent selects actions based on minimizing this EFE, balancing the desire to reach preferred states (low <strong title="Risk: Divergence of predicted outcomes from preferred outcomes (lower is better)">Risk</strong>) with the need to reduce uncertainty about outcomes (low <strong title="Ambiguity: Expected uncertainty about outcomes given predicted states (lower is better)">Ambiguity</strong>).
+      </p>
+      <div className="not-prose my-6">
+        <InteractiveGridWorld />
+      </div>
+      <p className="mt-4">
+          Try different arrangements of items and weather conditions. Adjust the agent's precision (<InlineMath math="\gamma"/>) and likelihood noise, and see how its behavior changes. Notice how the belief distribution (purple circles in main grid, mini-grid when paused) and the agent's most likely position (black circle) evolve.
+      </p>
+      {/* END NEW SECTION */}
+
+
+      <hr className="my-10 border-gray-300" />
+
+   <h2 id="summary" className="text-3xl font-bold mb-6">Summary & The Big Picture</h2>
    <p>
      Active Inference proposes a unified mechanism for perception, learning, planning, and action, all driven by the imperative to minimize Free Energy (a proxy for surprise). The core loop involves:
    </p>

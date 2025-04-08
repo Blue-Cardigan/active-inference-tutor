@@ -1,0 +1,27 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="arrowhead-action" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#3B82F6" />
+        </marker>
+        <marker id="arrowhead-perception" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#F59E0B" />
+        </marker>
+    </defs>
+
+    {/* Agent/Brain - stylized cloud/thought bubble */}
+    <path d="M 50,20 C 40,10 25,15 25,30 C 15,30 10,40 18,50 C 10,60 20,70 35,65 C 40,75 60,75 65,65 C 80,70 90,60 82,50 C 90,40 85,30 75,30 C 75,15 60,10 50,20 Z" stroke="#4B5563" stroke-width="2" fill="#E5E7EB" />
+
+    {/* Perception (Eye) - placed within the brain area */}
+    <circle cx="40" cy="40" r="8" stroke="#F59E0B" stroke-width="2" fill="#FFFBEB"/>
+    <circle cx="40" cy="40" r="3" fill="#F59E0B"/>
+
+    {/* Action Arrow - pointing outwards from brain */}
+    <path d="M 65, 60 Q 85, 70 90, 85" stroke="#3B82F6" stroke-width="2" marker-end="url(#arrowhead-action)"/>
+
+    {/* Observation/Feedback Arrow - pointing inwards towards eye */}
+    <path d="M 10, 85 Q 15, 70 30, 55" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowhead-perception)"/>
+
+    {/* Connecting loop - action leads to observation */}
+    <path d="M 90, 85 C 70, 105 30, 105 10, 85" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4 2"/>
+
+</svg>
