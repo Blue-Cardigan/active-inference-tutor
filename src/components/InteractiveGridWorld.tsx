@@ -369,7 +369,7 @@ export default function InteractiveGridWorld() {
         // 4. Simulate Full Policy Execution (Update True State)
         let currentTrueLocation = agent.trueLocation;
         let currentHunger = agent.hunger;
-        let tempGrid = environment.grid.map(row => [...row]); // Temp grid for interactions within policy
+        const tempGrid = environment.grid.map(row => [...row]); // Temp grid for interactions within policy
         let tempFoodLocations = [...environment.foodLocations];
 
         for (const action of chosenPolicy) {
