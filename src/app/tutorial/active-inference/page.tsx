@@ -831,12 +831,12 @@ export default function ActiveInferenceTutorialPage() {
           </p>
           <p className="mb-1">
               At each time step, the agent performs the following loop:
-              <ol className="list-decimal pl-5 my-1">
+          </p>
+          <ol className="list-decimal pl-5 my-1">
                   <li><strong>Evaluates Policies:</strong> It considers possible actions (Stay, North, East, South, West). For each action (policy), it calculates the EFE based on its current <strong title="Belief: The agent's probability distribution over possible hidden states (its location on the grid).">belief</strong> about its state, the environment's <strong title="Likelihood: How observations relate to hidden states (here, noisy position).">likelihood</strong> model, and its <strong title="Preferences: The agent's desired distribution over future outcomes (e.g., preferring food, avoiding predators).">preferences</strong>.</li>
                   <li><strong>Selects Action:</strong> It converts the EFE values into probabilities using a softmax function (influenced by <strong title="Precision (γ): Controls confidence in choosing the best (lowest EFE) policy.">Precision γ</strong>) and selects an action stochastically based on these probabilities. Policies with lower EFE are more likely to be chosen.</li>
                   <li><strong>Updates Belief:</strong> It executes the chosen action and updates its belief about its new state based on the predictable consequences of its action (using the <strong title="Transitions: How states change given an action (e.g., moving North changes location).">transition model</strong>). <em>(Note: A full Active Inference agent would also incorporate a new observation here to refine its belief via perception, but this simulation simplifies that step.)</em></li>
-              </ol>
-          </p>
+          </ol>
           <p>
               Use the <Pause size={12} className='inline -mt-px mx-px'/> / <Play size={12} className='inline -mt-px mx-px'/> button to pause and inspect the detailed calculations, including visualizations of beliefs and predictions.
           </p>
