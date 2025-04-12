@@ -373,7 +373,7 @@ export default function InteractiveGridWorld() {
                     const targetIndex = isIntendedMoveValid ? locToIndex(intendedTargetLoc) : i; // Actual target index (stays put if invalid)
 
                     // Calculate orthogonal 'slip' locations (if moving)
-                    let slipLocsIndices: number[] = [];
+                    const slipLocsIndices: number[] = [];
                     let numValidSlips = 0;
                     if (action !== 'stay') {
                         const slipDeltas = (delta.dr !== 0)
@@ -516,7 +516,7 @@ export default function InteractiveGridWorld() {
         // === Execution & Perception Phase ===
         let currentTrueLocation = agent.trueLocation;
         let currentHunger = agent.hunger;
-        let tempGrid = environment.grid.map(row => [...row]);
+        const tempGrid = environment.grid.map(row => [...row]);
         let tempFoodLocations = [...environment.foodLocations];
         let ateFoodThisCycle = false; // Track if food was eaten
 
