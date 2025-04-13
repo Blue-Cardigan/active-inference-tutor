@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import InlineMath from '@matejmazur/react-katex';
-import { Brain, Utensils, ShieldAlert, Home, Cloudy, Sun, Play, Pause, RefreshCw, Settings, ChevronsRight, Target, X, Eye, EyeClosed, Map as MapIcon, Info, MoveRight } from 'lucide-react';
-import { default_api } from "../../../../tool_config";
+import { Brain, Utensils, ShieldAlert, Home, Cloudy, Sun, Play, Pause, RefreshCw, ChevronsRight, X, Info } from 'lucide-react';
 
 // --- Constants ---
 const GRID_SIZE = 10;
