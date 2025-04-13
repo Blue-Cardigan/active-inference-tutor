@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import InlineMath from '@matejmazur/react-katex';
 import { Brain, Utensils, ShieldAlert, Home, Cloudy, Sun, Play, Pause, RefreshCw, Settings, ChevronsRight, Target, X, Eye, EyeClosed, Map as MapIcon, Info, MoveRight } from 'lucide-react';
+import { default_api } from "../../../../tool_config";
 
 // --- Constants ---
 const GRID_SIZE = 10;
@@ -965,9 +966,26 @@ export default function InteractiveGridWorld() {
                      </div>
                     {/* Speed Slider */}
                      <div className="my-2 text-sm">
-                            <label className="block mb-0.5">Sim Speed (ms/cycle)</label>
-                            <input type="range" min="50" max="2000" step="50" value={simulationSpeed} onChange={(e) => setSimulationSpeed(parseInt(e.target.value))} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer range-sm" />
+                        <label className="block mb-0.5">Sim Speed (ms/cycle: {simulationSpeed})</label>
+                        <div className="flex items-center gap-2">
+                             <span className="text-xs text-gray-500">Slower</span>
+                             <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="1"
+                                value={Math.round(((2000 - simulationSpeed) / (2000 - 50)) * 100)}
+                                onChange={(e) => {
+                                    const sliderValue = parseInt(e.target.value);
+                                    const newSpeed = Math.round(2000 - (sliderValue / 100) * (2000 - 50));
+                                    setSimulationSpeed(Math.max(50, Math.min(2000, newSpeed))); // Ensure speed stays within bounds
+                                }}
+                                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer range-sm"
+                                title={`Adjust simulation speed. Left is slower (${2000}ms/cycle), Right is faster (${50}ms/cycle).`}
+                             />
+                            <span className="text-xs text-gray-500">Faster</span>
                         </div>
+                    </div>
                  </div>
 
                 {/* Controls */}
